@@ -1,6 +1,6 @@
 Esquema del Proyecto
 
-1- Generar un rama por persona con la nomenclatura nombre del usuario_SM_FEB2023
+1- Generar un rama por persona con la nomenclatura nombre del usuario_SM_MAR2023
 
 2- Generar una carpeta dentro del proyecto, la carpeta debe tener el nombre del usuario Ej: Daniel
 
