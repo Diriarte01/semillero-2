@@ -15,16 +15,16 @@ function countNumber(number){
 console.log(countNumber(number));
 */
 
-  const numbers = [1,1,1,2,3,3,-4,-4,-5,-6,-7,-8,-8]
-    function countNumber (numbers){
-        const count = {};
-        for (let w = 0; w < numbers.lenght; w++){ 
-            if (count[numbers[w]]){
-                count[numbers[w]] += 1;
-            }else{
-                count[numbers[w]] = 1;
-            }
+const numbers = [1, 1, 1, 2, 3, 3, -4, -4, -5, -6, -7, -8, -8]
+function countNumber(numbers) {
+    const count = {};
+    for (let w = 0; w < numbers.lenght; w++) {
+        if (count[numbers[w]]) {
+            count[numbers[w]] += 1;
+        } else {
+            count[numbers[w]] = 1;
         }
-        return count;
     }
+    return count;
+}
 console.log(countNumber(numbers));

@@ -4,7 +4,7 @@
  *@author Walt Barros
  *@description Codigo prueba de ClientScript
  */
-define(['N/search'], function (search) {
+define(['N/search', 'N/ui/dialog'], function (search, dialog) {
 
     function pageInit(context) {
         const obj = context.currentRecord;
@@ -25,7 +25,7 @@ define(['N/search'], function (search) {
             sublistId: "item"
         })
         if (linecount < 3) {
-            alert('la transacción debe tener como minimo 3 Lineas para guardarse')
+            dialog.alert('Error','la transacción debe tener como minimo 3 Lineas para guardarse')
             return false;
         }
         return true;
