@@ -26,11 +26,14 @@ Estos campos deben ser llenados con la informacion de transaccional historica de
  *@author Walt Barros   
  *@description Codigo prueba2 de ClientScript
  */
-define(['N/ui/dialog'], function (dialog) {
+define(['N/ui/dialog', 'N/search'], function (dialog,search) {
 
     function pageInit(context) {
 
     }
+    let searchtransaction = search.transaction({
+
+    })
 
     function saveRecord(context) {
         const obj = context.currentRecord;
@@ -38,7 +41,10 @@ define(['N/ui/dialog'], function (dialog) {
             sublistId: "item",
 
         });
-
+        obj.setValue({
+            fieldId: "custbody_s4_quantity_transactions_csw1",
+            value: linecount,
+        })
         let totalquantity = 0;
         for (let i = 0; i < linecount; i++) {
             const quantity = obj.getSublistValue({
