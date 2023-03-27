@@ -106,6 +106,8 @@ define(['N/ui/dialog','N/search'],
                 })
             }
         }
+
+        handlers.saludar = ()=> alert('Hola desde la funcion de boton ejempl')
         return handlers
 
     }

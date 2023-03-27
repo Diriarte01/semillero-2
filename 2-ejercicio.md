@@ -14,6 +14,7 @@ Bonus Trasck:
     - % de transacciones del total
     - Promedio de transaciones al mes
     - Importe promedio de transacciones realizadas
+    
 Estos campos deben ser llenados con la informacion de transaccional historica del cliente, al guardar;
 
 Fecha de Entrega:
