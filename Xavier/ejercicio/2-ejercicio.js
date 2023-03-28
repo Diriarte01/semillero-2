@@ -41,11 +41,11 @@ define(['N/search','N/ui/dialog'], function(search,dialog) {
                     sublistId: 'item',
                     fieldId: 'item',
                 })
-                const searchField = search.lookupFields({
+                /*const searchField = search.lookupFields({
                     type: enum,
                     id: string,
                     columns: string | string[]
-                })
+                })*/
 
         }    
     }

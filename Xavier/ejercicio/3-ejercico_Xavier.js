@@ -6,13 +6,32 @@
  */
 define(['N/search','N/ui/dialog'], function(search,dialog) {
 
-    function pageInit(context) {
-        
-    }
+    
     
     function saveRecord(context) {
-        
         const obj = context.currentRecord;
+        /*
+        let transactionSearchObj = search.create({
+            type: "invoice",
+            filters:
+            [
+               ["type","anyof","CustInvc"]
+            ],
+            columns:
+            [
+               search.createColumn({name: "type", label: "Tipo"}),
+               search.createColumn({name: "entity", label: "Nombre"})
+            ]
+         });
+         let entity=transactionSearchObj[entity]
+        
+         log.audit("transactionSearchObj result count",transactionSearchObj);
+        
+         
+         transactionSearchObj.id="customsearch1679434517501";
+         transactionSearchObj.title="Transaccion prueba xavier (copy)";
+         var newSearchId = transactionSearchObj.save();
+         */
         const line = obj.getLineCount({
             sublistId: 'item'
         })
@@ -35,23 +54,6 @@ define(['N/search','N/ui/dialog'], function(search,dialog) {
            }
         return true;
     }
-    
-    function validateField(context) {
-        
-    }
-    
-    function fieldChanged(context) {
-        
-    }
-
-    function postSourcing(context) {
-        
-    }
-
-    function lineInit(context) {
-        
-    }
-
     function validateDelete(context) {
         if (confirm('Estas seguro que quieres eliminiar esta linea?')) {
             
@@ -61,17 +63,6 @@ define(['N/search','N/ui/dialog'], function(search,dialog) {
             
           }
         return true;
-    }
-
-    function validateInsert(context) {
-        
-    }
-
-    function validateLine(context) {
-    }
-
-    function sublistChanged(context) {
-        
     }
 
     return {
