@@ -30,7 +30,9 @@ define(['N/record'],
             }else{
                 const validatorType = validator[type]
                 for(let i in validatorType){
-                    
+                    if( i == "line"){
+                        continue
+                    }
                     if(!payload.hasOwnProperty(i) && validatorType[i].isMandatory ){
                         response.push({
                             name:'llave Obligatoria',
