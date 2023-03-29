@@ -7,21 +7,60 @@
  *@Description Codigo de clase ClientScript
  */
 
-define(["N/ui/dialog","N/search"], function (dialog,search) {
+define(["N/ui/dialog", "N/search"], function (dialog, search) {
   const handlers = {};
 
-
   /*******ejer1 && ejer3 **/
-  let totalquantity;
+
   handlers.saveRecord = (context) => {
     const obj = context.currentRecord;
-    const line = obj.getLineCount({
-      sublistId: "item",
+    const isEntity = obj.getValue({
+      fieldId: "entity",
+    });
+    //////// ejer 3
+    let arrayTrans = [];
+    const type = "salesorder";
+    const filters = [["type", "anyof", "SalesOrd"]];
+    const columns = [
+      search.createColumn({
+        name: "ordertype",
+        sort: search.Sort.ASC,
+        label: "Tipo de orden",
+      }),
+    ];
+    columns.push(search.createColumn({ name: "trandate", label: "Fecha" }));
+    columns.push(search.createColumn({ name: "type", label: "Tipo" }));
+    columns.push(search.createColumn({ name: "entity", label: "Nombre" }));
+    columns.push(search.createColumn({ name: "amount", label: "Importe" }));
+
+    let SearchSalesOrder = search.create({
+      type: type,
+      filters: filters,
+      columns: columns,
     });
 
-    totalquantity = obj.setValue({
-      fieldId: "custbody_s4_saleinfor_numtrans",
-      value: line,
+    let searchResultCount = SearchSalesOrder.runPaged().count;
+    //  log.debug("salesorderSearchObj result count", searchResultCount);
+
+    let res = SearchSalesOrder.run().each(function (result) {
+      return true;
+    });
+
+    const es = res.getValue({
+      name: "entity",
+    });
+
+    if (isEntity == es) 
+    
+    
+    
+    arrayTrans.push(res);
+    log.debug({ title: "array", details: res });
+
+    ////////////
+
+    const line = obj.getLineCount({
+      sublistId: "item",
     });
 
     let counst = 0;
@@ -33,11 +72,6 @@ define(["N/ui/dialog","N/search"], function (dialog,search) {
       });
 
       counst += quantity;
-
-      totalquantity = obj.setValue({
-        fieldId: "custbody_s4_saleinfor_numtrans",
-        value: i + 1,
-      });
 
       if (counst > 25) {
         dialog.alert({
@@ -65,14 +99,12 @@ define(["N/ui/dialog","N/search"], function (dialog,search) {
         fieldId: "quantity",
         line: i,
       });
-      
-      log.debug('valor', itemLineDelete)
+
+      log.debug("valor", itemLineDelete);
       if (itemLineDelete) {
-  
         dialog.alert({
           title: "Eliminar?",
           message: "desea eliminar el articulo",
-          
         });
         return true;
       }
@@ -80,7 +112,6 @@ define(["N/ui/dialog","N/search"], function (dialog,search) {
       return false;
     }
   };
-
 
   return handlers;
 });
