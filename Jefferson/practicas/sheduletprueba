@@ -1,0 +1,38 @@
+/**
+ *@NApiVersion 2.1
+ *@NScriptType ScheduledScript
+ */
+define(["N/search"], function (search) {
+  const handlers = {};
+
+  handlers.execute = (context) => {
+    const type = "customer";
+    const filters = [];
+    const columns = [
+      search.createColumn({
+        name: "entityid",
+        sort: search.Sort.ASC,
+        label: "Nombre",
+      }),
+    ];
+
+    const searchData = search.create({
+      type: type,
+      filters: filters,
+      columns: columns,
+    });
+
+
+         let searchResultCount = searchData.runPaged().count;
+         log.debug("customerSearchObj result count",searchResultCount);
+         
+         
+    searchData.run().each(function (result) {
+      return true;
+    });
+
+    log.audit("arrayclientes", result);
+  };
+
+  return handlers;
+});
