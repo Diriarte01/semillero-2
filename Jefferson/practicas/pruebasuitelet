@@ -1,0 +1,43 @@
+for (let i = 0; i <data.length; i++) {
+    form.setSublistValue({ id: 'custpage_entity',line: i,value: data[i].custpage_entity});
+    form.setSublistValue({ id: 'custpage_numbersinvoice',line: i,value: data[i].custpage_numbersinvoice});
+    form.setSublistValue({ id: 'custpage_datacreated',line: i,value: data[i].custpage_datacreated});
+    form.setSublistValue({ id: 'custpage_amount',line: i,value: data[i].custpage_amount});
+} 
+
+
+
+////////////////////////////////////////
+
+            let pagedData = searchData.runPaged({
+                pageSize: 40 
+            });
+            
+            pagedData.pageRanges.forEach(function(pageRange) {
+            let currentPage = pagedData.fetch({index: pageRange.index});
+                currentPage.data.forEach(function(data) {
+                    sublist.setSublistValue({
+                        id: 'custpage_entity',
+                        line: sublist.getLineCount(),
+                        value: data.getValue('custpage_entity')
+                    });
+                    sublist.setSublistValue({
+                        id: 'custpage_numbersinvoice',
+                        line: sublist.getLineCount() - 1,
+                        value: data.getValue('custpage_numbersinvoice')
+                    });
+                    sublist.setSublistValue({
+                        id: 'custpage_datacreated',
+                        line: sublist.getLineCount() - 1,
+                        value: result.getValue('custpage_datacreated')
+                    });
+
+                    sublist.setSublistValue({
+                        id: 'custpage_amount',
+                        line: sublist.getLineCount() - 1,
+                        value: result.getValue('custpage_amount')
+                    });
+
+
+                });
+            });
