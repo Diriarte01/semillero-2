@@ -13,96 +13,90 @@ define(['N/ui/serverWidget', 'N/search'], function (serverWidget, search) {
         try {
             let dataSearch = [];
             const sublist = form.addSublist({
-                id: 'cutpage_s4_invoices',
-                label: 'LISTA INVOICES',
-                type: serverWidget.SublistType.LIST
-            })
+                id: 'custpage_s4_sublist',
+                type: serverWidget.SublistType.STATICLIST,
+                label: 'LIST_INVOICES'
+            });
             sublist.addField({
-                id: 'internalid',
+                id: 'custpage_s4_internalid',
                 label: 'Numero de Factura',
-                type: serverWidget.SublistType.EDITOR
+                type: serverWidget.FieldType.TEXT
             })
             sublist.addField({
-                id: 'dateCreate',
+                id: 'custpage_s4_datacreate',
                 label: 'Fecha de Creación',
-                type: serverWidget.SublistType.EDITOR
+                type: serverWidget.FieldType.TEXT
             })
             sublist.addField({
-                id: 'total',
+                id: 'custpage_s4_total',
                 label: 'Total',
-                type: serverWidget.SublistType.EDITOR
+                type: serverWidget.FieldType.TEXT
             })
             sublist.addField({
-                id: 'entity',
+                id: 'custpage_s4_entity',
                 label: 'Cliente',
-                type: serverWidget.SublistType.EDITOR
+                type: serverWidget.FieldType.TEXT
             })
             let invoiceSearchObj = search.create({
                 type: "invoice",
                 filters:
-                    [
-                        ["type", "anyof", "CustInvc"],
-                        "AND",
-                        ["approvalstatus", "anyof", "2"],
-                        "AND",
-                        ["estimatedtotal", "greaterthanorequalto", "1000.00"],
-                        "AND",
-                        ["datecreated", "after", "1/1/2023 11:59 pm"]
-                    ],
+                [
+                   ["type","anyof","CustInvc"], 
+                   "AND", 
+                   ["status","anyof","CustInvc:A"], 
+                   "AND", 
+                   ["amount","greaterthanorequalto","1000.00"], 
+                   "AND", 
+                   ["mainline","is","T"]
+                ],
                 columns:
-                    [
-                        search.createColumn({ name: "entity", label: "Nombre" }),
-                        search.createColumn({ name: "quantity", label: "Cantidad" }),
-                        search.createColumn({ name: "datecreated", label: "Fecha de creación" }),
-                        search.createColumn({ name: "internalid", label: "ID interno" })
-                    ]
-            });
+                [
+                   search.createColumn({name: "entity", label: "Nombre"}),
+                   search.createColumn({name: "datecreated", label: "Fecha de creación"}),
+                   search.createColumn({name: "internalid", label: "ID interno"}),
+                   search.createColumn({name: "amount", label: "Importe"})
+                ]
+             });
             let searchResultCount = invoiceSearchObj.runPaged().count;
             log.debug("invoiceSearchObj result count", searchResultCount);
             invoiceSearchObj.run().each(function (result) {
                 dataSearch.push({
                     internalId: result.id,
                     dateCreate: result.getValue('datecreated'),
-                    quantity: result.getValue('quantity'),
-                    entity: result.getValue('entity')
+                    amount: result.getValue('amount'),
+                    entity: result.getText('entity')
 
                 });
                 return true;
             });
-            let i = 0;
-            const pageSize = 10;
-            const pageIndex = 0;
-            let pageStar = pageIndex * pageSize;
-            invoiceSearchObj.getRange({
-                start: pageStar,
-                end: pageStar + pageSize
-            }).forEach(function(result){
+            for (let i = 0; i < dataSearch.length; i++) {
 
                 sublist.setSublistValue({
-                    id: 'invoiceNumber',
+                    id: 'custpage_s4_internalid',
                     line: i,
                     value: dataSearch[i].internalId
                 });
                 sublist.setSublistValue({
-                    id: 'dateCreate',
+                    id: 'custpage_s4_datacreate',
                     line: i,
                     value: dataSearch[i].dateCreate
                 });
                 sublist.setSublistValue({
-                    id: 'total',
+                    id: 'custpage_s4_total',
                     line: i,
-                    value: dataSearch[i].quantity
+                    value: dataSearch[i].amount
                 });
                 sublist.setSublistValue({
-                    id: 'entity',
+                    id: 'custpage_s4_entity',
                     line: i,
                     value: dataSearch[i].entity
                 });
-                i++;
-                response.writePage(form);
-            })
+
+            }
         } catch (e) {
             log.audit('El error es el siguiente: ' + e.message)
+        } finally {
+            response.writePage(form);
         }
 
 
