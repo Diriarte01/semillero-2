@@ -1,24 +1,21 @@
 /**
  *@NApiVersion 2.1
- *@NScriptType UserEventScript
+ *@NScriptType ScheduledScript
  */
-define(['N/https', 'N/xml'], 
-    function(https, xml) {
+define(['N/task', 'N/file', 'N/https'], 
+    function(task, file, https) {
         const handlers = {};
 
-        handlers.beforeLoad = (context)=>{
-            const record = context.newRecord;
-            const form = context.form;
-            form.clientScriptModulePath = './s4_cs_bottom.js';
-            if(context.type == context.UserEventType.VIEW){
-                const internalId = record.id;
-                form.addButton({
-                    id: 'custpage_bottom',
-                    label: 'popUp',
-                    functionName: "popUp("+internalId+")"
-                })
-            }
-            const date = new Date()
+        handlers.execute = (context) =>{
+            const filePath = -15;
+            const header = 'fecha,importe'+'\n';
+            let fileObj = file.create({
+                name: 'dispersion.csv',
+                fileType: file.Type.CSV,
+                contents: header,
+                folder: filePath
+            })
+
             const host = "https://www.superfinanciera.gov.co/SuperfinancieraWebServiceTRM/TCRMServicesWebService/TCRMServicesWebService?wsdl"
             const body = `
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -26,12 +23,11 @@ define(['N/https', 'N/xml'],
                 <soapenv:Header/>
                 <soapenv:Body>
                     <act:queryTCRM>
-                        <tcrmQueryAssociatedDate>${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}</tcrmQueryAssociatedDate>
+                        <tcrmQueryAssociatedDate>2023-04-10</tcrmQueryAssociatedDate>
                     </act:queryTCRM>
                 </soapenv:Body>
             </soapenv:Envelope>
             `
-            log.debug('body:', body)
             const headerUrl = {
                 'Content-Type': 'text/xml'
             }
@@ -41,10 +37,18 @@ define(['N/https', 'N/xml'],
                 headers: headerUrl
             })
             log.debug('response', response)
-            log.debug('response', xml.Parser.fromString({ text : response.body }))
+            fileObj.appendLine({
+                value: '4/10/2023,4590'
+            })
+            const fileSave = fileObj.save();
+            task.create({
+                taskType: task.TaskType.CSV_IMPORT,
+                importFile:fileObj,
+                mappingId: 'custimport_s4_exchanged_currency',
+            }).submit()
+
         }
 
         return handlers;
-    
     }
 );
