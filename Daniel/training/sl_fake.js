@@ -60,6 +60,8 @@ define(['N/ui/serverWidget', 'N/https'],
                     log.debug('responseApi',responseApi[i]);
                     html += `
                     <div class="item">
+                        <h1>${responseApi[i].title[0]}</h1>
+                        <h2>${responseApi[i].price[0]}</h2>
                         <img src=${responseApi[i].images[0]} alt="">
                      </div>
                     `
@@ -78,6 +80,7 @@ define(['N/ui/serverWidget', 'N/https'],
                 log.error('Error creating', e)
             } finally {
                 response.writePage(form)
+                
             }
         }
         return handlers;

@@ -3,7 +3,7 @@
  *@NScriptType ClientScript
  *@author Xavier Gonzalez
  */
-define(['./pop_up.js','N/search', 'N/record'], function (popUp, search, record) {
+define(['./pop_up.js','N/search', 'N/record','N/file'], function (popUp, search, record,file) {
     const handlers = {};
     handlers.pageInit = (context) => { }
 
@@ -18,44 +18,44 @@ define(['./pop_up.js','N/search', 'N/record'], function (popUp, search, record) 
         const phone = obj.getValue('phone')
         const limitCredit = obj.getValue('creditlimit');
         const credit1 = obj.getValue('balance');
-        let creditDisp = 0;
-        if(credit1 < limitCredit){
-            creditDisp =limitCredit-credit1;
-        }else{
-            creditDisp = 0
-        }
-        var invoiceSearchObj = search.create({
-            type: "invoice",
-            filters:
-            [
-               ["mainname","anyof", id], 
-               "AND", 
-               ["type","anyof","CustInvc"]
-            ],
-            columns:
-            [
-               search.createColumn({name: "internalid", label: "ID interno"})
-            ]
-         });
-         const searchResultCount = invoiceSearchObj.runPaged().count;
-         log.debug("invoiceSearchObj result count",searchResultCount);
-         invoiceSearchObj.run().each(function(result){
-            // .run().each has a limit of 4,000 results
-            return true;
-        });
+        
+      
         
         let text = name+'\n'+email+'\n'+phone+'\n'+limitCredit+'\n'+creditDisp+'\n'+searchResultCount
         
 
         popUp.fire({
-            title: 'Informacion del Cliente',
-            text: text,
-            type: 'warning',
+            title: '<strong>Información del Cliente</strong>',
+            icon: 'info',
+            html:`
+            <h1>Nombre: <strong>${name}</strong></h1>
+            <h2>Corre Electronico: <strong>${email}</strong></h2>
+            <h2>Phone: <strong>${phone}</strong></h2>
+            <h2>Credito: <strong>${creditLimit}</strong></h2>
+            <h2>Credito disponible: <strong>${balance}</strong></h2>
+            <h2>Numero de Facturas: <strong>${countInvoiceCustomer}</strong></h2>
+            <h2>% de facturas: <strong>${(countInvoiceCustomer/countInvoice)*100}%</strong></h2>
+        `,
+
+            showCloseButton: true,
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Confirmar'
-        }).then(() => { })
+            focusConfirm: false,
+            confirmButtonText:
+                '<i class="fa fa-thumbs-up"></i> Great!',
+            confirmButtonAriaLabel: 'Thumbs up, great!',
+            cancelButtonText:
+                '<i class="fa fa-thumbs-down"></i> Cancel!',
+            cancelButtonAriaLabel: 'Thumbs down'
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                pop_up_Walt.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+              )
+            }
+          });
 
     }
     return handlers;

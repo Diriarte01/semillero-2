@@ -5,7 +5,7 @@
 define([], function() {
 
     function pageInit(context) {
-        
+        file.creade
     }
 
     function saveRecord(context) {
