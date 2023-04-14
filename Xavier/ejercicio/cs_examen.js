@@ -2,59 +2,46 @@
  *@NApiVersion 2.1
  *@NScriptType ClientScript
  */
-define(['N/url'], 
-    function(url) {
+define(['N/url'],
+    function (url) {
         const handlers = {};
-        handlers.fieldChanged = (context)=>{
-            const record = context.currentRecord;
-            const fieldId = context.fieldId;
-            if(fieldId){
-                const fieldValue = record.getValue(fieldId)
-                const actualParams = new Object();
-                let urlRedirect
-                switch(fieldId){
-                    case 'custpage_s4_company':
-                        location
-                        .search
-                        .substr(1)
-                        .split('&')
-                        .forEach((rs)=>{
-                            const tmp = rs.split('=');
-                            if(tmp[0] === 'custpage_s4_company' || tmp[0] === 'custpage_s4_account'){
-                                actualParams[tmp[0]] = decodeURIComponent(tmp[1]);
-                            }
-                        })
-                        actualParams['custpage_s4_company'] = fieldValue
-                        urlRedirect = url.resolveScript({
-                            deploymentId: '',
-                            scriptId: '',
-                            params: actualParams
-                        })
-                        window.onbeforeunload = false;
-                        window.location.replace(url)
-                    break;
-                    case 'custpage_s4_account':
-                        location
-                        .search
-                        .substr(1)
-                        .split('&')
-                        .forEach((rs)=>{
-                            const tmp = rs.split('=');
-                            if(tmp[0] === 'custpage_s4_account' || tmp[0] === 'custpage_s4_company' ){
-                                actualParams[tmp[0]] = decodeURIComponent(tmp[1]);
-                            }
-                        })
-                        actualParams['custpage_s4_account'] = fieldValue
-                        urlRedirect = url.resolveScript({
-                            deploymentId: '',
-                            scriptId: '',
-                            params: actualParams
-                        })
-                        window.onbeforeunload = false;
-                        window.location.replace(url)
-                    break;
+        handlers.fieldChanged = (context) => {
+            let record = context.currentRecord;
+            let fieldId = context.fieldId;
+
+            try {
+                if (fieldId != null) {
+                    const fieldValue = record.getValue(fieldId);
+                    const actualParams = new Object();
+                    switch (fieldId) {
+                        case 'custpage_s4_company': {
+                            location.search
+                                .substr(1)
+                                .split("&")
+                                .forEach((item) => {
+                                    const tmp = item.split("=");
+                                    if (tmp[0] === 'custpage_s4_company') {
+                                        if (tmp[1] != null && tmp[1] != "")
+                                            actualParams[tmp[0]] = decodeURIComponent(tmp[1]);
+                                    }
+                                });
+                            actualParams['custpage_s4_company'] = fieldValue;
+                            const urlRedirect = url.resolveScript({
+                                deploymentId: 'customdeploy_s4_examen_xg',
+                                scriptId: "customscript_s4_examen_xg",
+                                params: actualParams,
+                            });
+                            window.onbeforeunload = null;
+                            window.location.replace(urlRedirect);
+                            break;
+                        }
+                       
+                    }
                 }
+            } catch (e) {
+                console.log(e);
             }
+
         }
         return handlers;
     }
