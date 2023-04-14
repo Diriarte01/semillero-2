@@ -20,7 +20,7 @@ define(['N/url'],
                                 .split("&")
                                 .forEach((item) => {
                                     const tmp = item.split("=");
-                                    if (tmp[0] === 'custpage_s4_company') {
+                                    if (tmp[0] === 'custpage_s4_company' || tmp[0] === 'custpage_s4_account') {
                                         if (tmp[1] != null && tmp[1] != "")
                                             actualParams[tmp[0]] = decodeURIComponent(tmp[1]);
                                     }
@@ -35,7 +35,27 @@ define(['N/url'],
                             window.location.replace(urlRedirect);
                             break;
                         }
-                       
+                        case 'custpage_s4_account': {
+                            location.search
+                                .substr(1)
+                                .split("&")
+                                .forEach((item) => {
+                                    const tmp = item.split("=");
+                                    if (tmp[0] === 'custpage_s4_account' || tmp[0] === 'custpage_s4_company') {
+                                        if (tmp[1] != null && tmp[1] != "")
+                                            actualParams[tmp[0]] = decodeURIComponent(tmp[1]);
+                                    }
+                                });
+                            actualParams['custpage_s4_account'] = fieldValue;
+                            const urlRedirect = url.resolveScript({
+                                deploymentId: 'customdeploy_s4_examen_xg',
+                                scriptId: "customscript_s4_examen_xg",
+                                params: actualParams,
+                            });
+                            window.onbeforeunload = null;
+                            window.location.replace(urlRedirect);
+                            break;
+                        }                       
                     }
                 }
             } catch (e) {
