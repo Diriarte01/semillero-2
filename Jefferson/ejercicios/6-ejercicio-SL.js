@@ -6,6 +6,8 @@ define(["N/ui/serverWidget","N/search"], function(serverWidget,search) {
     
     const handlers = {};
 
+   
+
     handlers.onRequest = (context) => {
         const data =[];
         const response = context.response;
