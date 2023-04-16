@@ -2,8 +2,8 @@
  *@NApiVersion 2.1
  *@NScriptType ClientScript
  */
-define(['N/url'],
-    function (url) {
+define(['N/url', 'N/ui/dialog'],
+    function (url, dialog) {
         const handlers = {};
         handlers.fieldChanged = (context) => {
             let record = context.currentRecord;
@@ -181,6 +181,60 @@ define(['N/url'],
                 console.log(e);
             }
 
+        }
+        handlers.saveRecord = (context) => {
+            const record = context.currentRecord;
+            const line = record.getLineCount({ sublistId: "custpage_s4_sublist" });
+            let flag = false;
+            for (let i = 0; i < line; i++) {
+                const check = record.getSublistValue({
+                    sublistId: "custpage_s4_sublist",
+                    fieldId: "custpage_s4_checkbox",
+                    line: i,
+                });
+                if (check) {
+                    flag = true;
+                    break;
+                }
+            }
+
+            const message = {
+                title: "Error",
+                message: "Favor seleccionar por lo menos una linea de transacción",
+            };
+            if (!flag) {
+                dialog.alert(message);
+                return false;
+            }
+
+            // Milisegundos en tres meses
+            let millisecond90 = 1000 * 60 * 60 * 24 * 90;
+            let millisecond1 = 1000 * 60 * 60 * 24;
+            let dateObject = new Date();
+            let currentHour = dateObject.getTime();
+            let maxHours = currentHour + millisecond90;
+            let currentFixedHour = currentHour - millisecond1;
+            let maxDate = new Date(maxHours);
+            let currentDate = new Date(currentFixedHour);
+            let dateEffective = record.getValue('custpage_s4_dateaplication');
+
+            /* Validacion de fechas */
+            if (dateEffective > maxDate) {
+                // Si la fecha es mayor a 90 Dias
+                message.title = 'Fecha Invalida';
+                message.message = 'La fecha seleccionada supera los 90 dias calendario a la fecha actual';
+                // record.setValue('custpage_s4_dateaplication', new Date())
+                dialog.alert(message);
+                return false;
+            } else if (currentDate > dateEffective) {
+                // Si la fecha es menor de la fecha actual
+                message.title = 'Fecha Invalida';
+                message.message = 'La fecha seleccionada es menor a la fecha actual';
+                // record.setValue('custpage_s4_dateaplication', new Date())
+                dialog.alert(message);
+                return false;
+            }
+            return true;
         }
         return handlers;
     }
