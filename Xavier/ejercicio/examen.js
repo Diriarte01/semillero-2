@@ -152,20 +152,38 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 const fieldDateCreation = form.addField({ id: 'custpage_s4_dateacreation', label: 'Fecha de Creación ', type: 'date', container: 'custpage_s4_field_group_trans' })
                 const fieldDateAplication = form.addField({ id: 'custpage_s4_dateaplication', label: 'Fecha de Aplicación ', type: 'date', container: 'custpage_s4_field_group_trans' })
                 const fieldTypePay = form.addField({ id: 'custpage_s4_typepay', label: 'Tipo de Pago', type: 'select', container: 'custpage_s4_field_group_trans', source: '140' })
-                const fieldTypeTrans = form.addField({ id: 'custpage_s4_typetrans', label: 'Tipo de Transacción', type: 'select', container: 'custpage_s4_field_group_trans', source: '142' })
+                // const fieldTypeTrans = form.addField({ id: 'custpage_s4_typetrans', label: 'Tipo de Transacción', type: 'select', container: 'custpage_s4_field_group_trans', source: '142' })
                 const fieldDescription = form.addField({ id: 'custpage_s4_description', label: 'Descripción', type: 'text', container: 'custpage_s4_field_group_trans' })
                 fieldDescription.maxLength = 10;
+                
                 const fieldGroupSublist = form.addFieldGroup({ id: 'custpage_s4_field_group_sublist', label: 'Informacion de Facturas de Compra' })
                 const fieldSublist = form.addSublist({ id: 'custpage_s4_sublist', type: serverWidget.SublistType.LIST, label: 'LISTA DE FACTURA DE COMPRA' });
                 // fieldSublist.addCheckboxColumn({id: 'custpage_checkbox',label: 'Select'});
                 fieldSublist.addField({ id: 'custpage_s4_checkbox', label: 'CHECKBOX', type: serverWidget.FieldType.CHECKBOX })
                 const fieldAmount= fieldSublist.addField({ id: 'custpage_s4_importe', label: 'IMPORTE', type: serverWidget.FieldType.CURRENCY })
-                fieldSublist.addField({ id: 'custpage_s4_datecreate', label: 'FECHA DE CREACION', type: serverWidget.FieldType.TEXT })
+                fieldSublist.addField({ id: 'custpage_s4_datecreate', label: 'FECHA DE CREACIÓN', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_companyname', label: 'NOMBRE DE PROVEEDOR', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_typedocument', label: 'TIPO DE DOCUMENTO', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_numberdocument', label: 'NUMERO DE DOCUMENTO', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_numberbank', label: 'NUMERO DE CUENTA BANCARIA', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_codebank', label: 'CODIGO DE BANCO', type: serverWidget.FieldType.TEXT })
+                const fieldReference= fieldSublist.addField({ id: 'custpage_s4_reference', label: 'REFERENCIA', type: serverWidget.FieldType.TEXT })
+                const fieldReConcept= fieldSublist.addField({ id: 'custpage_s4_concept', label: 'CONCEPTO', type: serverWidget.FieldType.TEXT })
+                const typeTrans = fieldSublist.addField({ id: 'custpage_s4_typetrans1', label: 'TIPO DE TRANSACCIÓN', type: serverWidget.FieldType.SELECT })
+                const options = [
+                    { value: '', text: '' },
+                    { value: '23', text: 'Pre-notificación cuenta corriente' },
+                    { value: '25', text: 'Pago en efectivo' },
+                    { value: '27', text: 'Abono a cuenta corriente' },
+                    { value: '33', text: 'Pre-notificación cuenta ahorros' },
+                    { value: '37', text: 'Abono a cuenta de ahorros' },
+                    { value: '40', text: 'Efectivo seguro/Tarjeta prepago' },
+                    { value: '52', text: 'Abono a depósito electrónico' },
+                    { value: '53', text: 'Pre-notificación depósito electrónico' }
+                  ];
+                for(let i = 0; i < options.length; i++){
+                    typeTrans.addSelectOption({value : options[i].value,text : options[i].text});
+                }
                 form.addSubmitButton({ label: 'Guardar dispersión' })
                 for (let i = 0; i < dataTransaction.length; i++) {
                     fieldSublist.setSublistValue({ id: 'custpage_s4_importe', line: i, value: dataTransaction[i].importe });
@@ -175,8 +193,17 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                     fieldSublist.setSublistValue({ id: 'custpage_s4_numberdocument', line: i, value: dataTransaction[i].documentNumber });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_numberbank', line: i, value: dataTransaction[i].bankNumber });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_codebank', line: i, value: dataTransaction[i].codeBank });
+                    fieldSublist.setSublistValue({ id: 'custpage_s4_reference', line: i, value:' ' });
+                    fieldSublist.setSublistValue({ id: 'custpage_s4_concept', line: i, value: ' '});
                 }
+                
+                log.audit('typeTrans: ', typeTrans)
                 fieldAmount.updateDisplayType({ displayType: serverWidget.FieldDisplayType.ENTRY });
+                fieldAmount.maxLength = 10;
+                fieldReference.updateDisplayType({ displayType: serverWidget.FieldDisplayType.ENTRY });
+                fieldReference.maxLength = 12;
+                fieldReConcept.updateDisplayType({ displayType: serverWidget.FieldDisplayType.ENTRY });
+                fieldReConcept.maxLength = 9;
                 fldTypeAccount.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
                 fldNit.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
                 fldNumberAccount.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
@@ -215,9 +242,9 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 if (params['custpage_s4_typepay']) {
                     fieldTypePay.defaultValue = params['custpage_s4_typepay']
                 }
-                if (params['custpage_s4_typetrans']) {
-                    fieldTypeTrans.defaultValue = params['custpage_s4_typetrans']
-                } if (params['custpage_s4_description']) {
+                // if (params['custpage_s4_typetrans']) {
+                //     fieldTypeTrans.defaultValue = params['custpage_s4_typetrans']} 
+                if (params['custpage_s4_description']) {
                     fieldDescription.defaultValue = params['custpage_s4_description']
                 }
                 response.writePage(form)
@@ -257,12 +284,17 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 header += (params['custpage_s4_type_account']).slice(0, 1)
                 header += '\n';
                 log.audit('header: ', header)
+                
                 let cont = 0
                 let cont2 = 0
                 for (let i = 0; i < line; i++) {
                     const check = request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_checkbox' })
                     if (check == 'T') {
                         let line2 = ''
+
+                        // const typeTrans =(params['inpt_custpage_s4_typetrans']).slice(0, 2)
+                        const trans = request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_typetrans1' })
+                        log.audit('trans: ', trans)
                         const amount_payment = request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_importe' });
                         line2 += '6';
                         line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_numberdocument' })).padStart(15, '0');
@@ -270,9 +302,16 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                         line2 += ((request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_codebank' })).slice(0,4)).padStart(9, '0');
                         line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_numberbank' })).padStart(17, '0')
                         line2 += 'S'
-                        line2 += (params['inpt_custpage_s4_typetrans']).slice(0, 2)
+                        line2 += trans
                         line2 += (Math.round(amount_payment).toString()).padStart(10, '0');/*((parseFloat(amount_payment).toFixed(2)).padStart(11, '0').replace('.', ''));*/
-                        line2 += '                      ';
+                        if(trans =='25'){
+                            line2 += '  '
+                            line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_typedocument' })).padStart(6, '0')
+                            line2 += ' '
+                        }else{
+                            line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_concept' })).padEnd(9, ' ')
+                        }
+                        line2 +=(request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_reference' })).padEnd(12, ' ') 
                         line2 += '\n';
                         header += line2;
                         cont +=1
