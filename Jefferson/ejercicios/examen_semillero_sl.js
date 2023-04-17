@@ -7,16 +7,32 @@ define(['N/ui/serverWidget','N/file','N/https'], function(serverWidget,file,http
 
     handlers.onRequest = (context) =>{       
       const request = context.request;
+      const response = context.response;
         
       try {
- 
-       // Carga la biblioteca de google sheets
-      
-       const file = nlapiLoadFile('/jefferson/ejercicios/google-sheets-client.js');
-       eval(file.getValue());
-     
-      /************************************************************************************/
 
+        // accedo la hoja de google sheets y especifico el rango de celdas para utilizar  
+        const spreadsheetId = '1BG0fAXkgdzu1RDI9obQeymD7sR2T7fL4pUjG8NOn_4I'; 
+        const range = 'Sheet1!A1:G7'; 
+       
+        // Carga la biblioteca de google sheets    
+         const file = file.load({id :'/jefferson/ejercicios/google-sheets-client.js'});
+         eval(file.getContents());
+
+
+        // obtener token de acceso
+         const authInstance = gapi.auth2.getAuthInstance();
+
+        //diálogo de inicio de sesión de Google
+        authInstance.signIn().then(function() {
+      
+         const accessToken = authInstance.currentUser.get().getAuthResponse().access_token;
+           log.debug('Token de acceso obtenido:', accessToken);
+          },function(e) {
+           log.debug('Error al obtener el token de acceso:', e.message);
+        });
+              
+      /************************************************************************************/
       // renderizo la pagina
 
       // Crear un formulario personalizado
@@ -45,59 +61,7 @@ define(['N/ui/serverWidget','N/file','N/https'], function(serverWidget,file,http
             popup.addButton({id: 'custpage_ok',label: 'Aceptar'});
             popup.show();
 
-      /**********************************************************************************************************/ 
-      
-       // credenciales 
-       const credentials = {
-        client_id: "357039879849-bc6cqauufta387gqffrg1sc6s5gff2gv.apps.googleusercontent.com",
-        client_secret: "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",
-        redirect_uri: "https://tstdrv2720031.app.netsuite.com/app/site/hosting/scriptlet.nl?script=148&deploy=1&whence=",
-        grant_type: "authorization_code",
-        code: "TU_CODIGO_DE_AUTORIZACION"
-      };
-
-      /**********************************************************************************************************/ 
-      
-      // obtener token de acceso
-
-      
-      const oauth2Client = new google.auth.OAuth2(
-        credentials.client_id,
-        credentials.client_secret,
-        credentials.redirect_uri
-      );
-      
-      oauth2Client.getToken(credentials.code, function(token) {
-        if (e) {
-          log.debug("Error al obtener token: ", e.message)
-          return;
-        }
-        console.log("Token de acceso: ", token.access_token);
-      })
-     
-      /*********************************************************************************************************** */
-
-      /*
-
-      function getGoogleAccessToken(credentials) {
-        const url = 'https://oauth2.googleapis.com/token';
-        const headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-      
-        const data = {grant_type: 'refresh_token',client_id: credentials.client_id,client_secret: credentials.client_secret,refresh_token: credentials.refresh_token
-        };
-      
-        var response = https.post({
-          url: url,
-          headers: headers,
-          body: data
-        });
-      
-        var token = JSON.parse(response.body).access_token;
-      
-        return token;
-      }
-          */
-
+      /**********************************************************************************************************/
 
       // obetener todo los valores de los campos
       const tipoDocumentoValue = context.request.parameters.custpage_tipo_documento;
@@ -112,14 +76,36 @@ define(['N/ui/serverWidget','N/file','N/https'], function(serverWidget,file,http
 
       const objCustomer = {tipoDocumento: tipoDocumentoValue,numeroDocumento : numeroDocumentoValue,nombre : nombresValue,apellido : apellidosValue,correo : emailValue,telefono : telefonoValue,direccion : direccionValue};
 
+      // funcion que me trae los datos de la hoja de sheets
+
+      function SpreadsheetData(sheetId, range, accessToken) {
+        const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + sheetId + '/values/' + range;
+        const headers = {'Authorization': 'Bearer ' + accessToken};
+        const resp = https.get({url: url,headers: headers});
+      
+        if (resp.code === 200) {
+          return JSON.parse(resp.body);
+        } else {
+          throw Error('Error al obtener los datos de la hoja de cálculo. Código de respuesta: ' + resp.code);
+        }
+      }
+
+      const data = SpreadsheetData(spreadsheetId, range, accessToken);
+      const dataObj = 'Los datos de la hoja de cálculo son: ' + JSON.stringify(data);
+
+
+
+
+
+
+
+
+
 
 
 
       if (context.request.method === https.Method.GET) {
      
-        // accedo la hoja de google sheets y especifico el rango de celdas para utilizar
-      const spreadsheetId = '1LRNUPv-yO0SjvmOh02zO2QHMvkm90w0zEgQw1eoAjh4';
-      const range = 'Sheet1!A1:G';
 
         // elabaro la peticion
       const headers = {'Content-Type': 'application/json','Authorization': 'Bearer ' + getAccessToken()}
