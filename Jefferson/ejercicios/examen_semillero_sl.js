@@ -8,7 +8,7 @@ define(['N/ui/serverWidget','N/file','N/https'], function(serverWidget,file,http
     handlers.onRequest = (context) =>{       
       const request = context.request;
       const response = context.response;
-        
+  
       try {
 
         // accedo la hoja de google sheets y especifico el rango de celdas para utilizar  
