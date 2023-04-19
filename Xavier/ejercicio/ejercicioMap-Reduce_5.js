@@ -7,7 +7,7 @@ define(["N/search", "N/record"], function (search, record) {
 
     function getInputData() {
         try {
-
+            
             let response = [];                                  // variable para guardar los resultados de la busqueda
             var customerSearchObj = search.create({             //busqueda creada usand el metodo search.create del modulo N/search
                 type: "customer",

@@ -8,7 +8,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
 
     const subsidiary = () => {
         const type = 'subsidiary', columns = [], filters = [], response = [];
-        filters.push(["custrecord_nit_subsidiaria","isnotempty",""])
+        filters.push(["custrecord_nit_subsidiaria", "isnotempty", ""])
         columns.push(search.createColumn({ name: "namenohierarchy", label: "Nombre (sin jerarquía)" }))
         columns.push(search.createColumn({ name: "custrecord_nit_subsidiaria", label: "NIT De Subsidiaria" }))
         columns.push(search.createColumn({ name: "legalname", label: "Nombre legal" }))
@@ -37,8 +37,8 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                     ["custrecord_s4_type_account", "noneof", "@NONE@"],
                     "AND",
                     ["subsidiary", "anyof", subsidiary],
-                    "AND", 
-                    ["custrecord_s4_type_bank","anyof","1"]
+                    "AND",
+                    ["custrecord_s4_type_bank", "anyof", "1"]
                 ],
             columns:
                 [
@@ -61,7 +61,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
         return response;
 
     }
-    const searchTrans = () => {
+    const searchTrans = (subsidiary) => {
         const response = [];
         const vendorbillSearchObj = search.create({
             type: "vendorbill",
@@ -71,7 +71,11 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                     "AND",
                     ["mainline", "any", ""],
                     "AND",
-                    ["vendor.custentity_s4_entity_document_number2", "isnotempty", ""]
+                    ["vendor.custentity_s4_entity_document_number2", "isnotempty", ""],
+                    "AND",
+                    ["subsidiary", "anyof", subsidiary],
+                    "AND",
+                    ["amountremaining", "greaterthan", "0.00"]
                 ],
             columns:
                 [
@@ -101,7 +105,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                         name: "custentity_s4_cod_bank",
                         join: "vendor",
                         label: "Codigo de banco"
-                     })
+                    })
                 ]
         });
 
@@ -110,7 +114,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 importe: rs.getValue('amount'),
                 datecreate: rs.getValue('datecreated'),
                 companyname: rs.getValue({ name: "companyname", join: "vendor" }),
-                typeDocument: rs.getValue({ name: "custentity_s4_type_document", join: "vendor" }),
+                typeDocument: rs.getText({ name: "custentity_s4_type_document", join: "vendor" }),
                 documentNumber: rs.getValue({ name: "custentity_s4_entity_document_number", join: "vendor" }),
                 bankNumber: rs.getValue({ name: "custentity_s4_entity_document_number2", join: "vendor" }),
                 codeBank: rs.getText({ name: "custentity_s4_cod_bank", join: "vendor" })
@@ -120,14 +124,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
         });
         return response;
     }
-    const createAndDownload = () => {
-        let fielTxt = file.create({
-            name: 'Archivo SAP.txt',
-            fileType: 'PLAINTEXT',
-            contents: 'string',
-            folder: -15
-        })
-    }
+    
     handlers.onRequest = (context) => {
         const request = context.request
         const response = context.response
@@ -138,8 +135,8 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
             if (request.method == 'GET') {
 
                 /*const fieldGroupBanco = form.addFieldGroup({ id: 'custpage_s4_groupbanco', label: 'Imformacion de Empresa' })*/
-                const fieldGroup = form.addFieldGroup({ id: 'custpage_s4_field_group', label: 'Informacion de la empresa' })
-                const empresa = form.addField({ id: 'custpage_s4_company', label: 'Empresa', type: 'select', container: 'custpage_s4_field_group' })
+                const fieldGroup = form.addFieldGroup({ id: 'custpage_s4_field_group', label: 'Informacion de la subsidiaria' })
+                const empresa = form.addField({ id: 'custpage_s4_company', label: 'Subsidiaria', type: 'select', container: 'custpage_s4_field_group' })
                 const dataSubsidiary = subsidiary()
                 const dataTransaction = searchTrans()
                 empresa.isMandatory = true;
@@ -155,34 +152,35 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 // const fieldTypeTrans = form.addField({ id: 'custpage_s4_typetrans', label: 'Tipo de Transacción', type: 'select', container: 'custpage_s4_field_group_trans', source: '142' })
                 const fieldDescription = form.addField({ id: 'custpage_s4_description', label: 'Descripción', type: 'text', container: 'custpage_s4_field_group_trans' })
                 fieldDescription.maxLength = 10;
-                
+
                 const fieldGroupSublist = form.addFieldGroup({ id: 'custpage_s4_field_group_sublist', label: 'Informacion de Facturas de Compra' })
                 const fieldSublist = form.addSublist({ id: 'custpage_s4_sublist', type: serverWidget.SublistType.LIST, label: 'LISTA DE FACTURA DE COMPRA' });
+                fieldSublist.addMarkAllButtons();
                 // fieldSublist.addCheckboxColumn({id: 'custpage_checkbox',label: 'Select'});
                 fieldSublist.addField({ id: 'custpage_s4_checkbox', label: 'CHECKBOX', type: serverWidget.FieldType.CHECKBOX })
-                const fieldAmount= fieldSublist.addField({ id: 'custpage_s4_importe', label: 'IMPORTE', type: serverWidget.FieldType.CURRENCY })
+                const fieldAmount = fieldSublist.addField({ id: 'custpage_s4_importe', label: 'IMPORTE', type: serverWidget.FieldType.CURRENCY })
                 fieldSublist.addField({ id: 'custpage_s4_datecreate', label: 'FECHA DE CREACIÓN', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_companyname', label: 'NOMBRE DE PROVEEDOR', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_typedocument', label: 'TIPO DE DOCUMENTO', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_numberdocument', label: 'NUMERO DE DOCUMENTO', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_numberbank', label: 'NUMERO DE CUENTA BANCARIA', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_codebank', label: 'CODIGO DE BANCO', type: serverWidget.FieldType.TEXT })
-                const fieldReference= fieldSublist.addField({ id: 'custpage_s4_reference', label: 'REFERENCIA', type: serverWidget.FieldType.TEXT })
-                const fieldReConcept= fieldSublist.addField({ id: 'custpage_s4_concept', label: 'CONCEPTO', type: serverWidget.FieldType.TEXT })
+                const fieldReference = fieldSublist.addField({ id: 'custpage_s4_reference', label: 'REFERENCIA', type: serverWidget.FieldType.TEXT })
+                const fieldReConcept = fieldSublist.addField({ id: 'custpage_s4_concept', label: 'CONCEPTO', type: serverWidget.FieldType.TEXT })
                 const typeTrans = fieldSublist.addField({ id: 'custpage_s4_typetrans1', label: 'TIPO DE TRANSACCIÓN', type: serverWidget.FieldType.SELECT })
+                typeTrans.isMandatory = true;
                 const options = [
-                    { value: '', text: '' },
+                    { value: '37', text: 'Abono a cuenta de ahorros' },
+                    { value: '27', text: 'Abono a cuenta corriente' },
                     { value: '23', text: 'Pre-notificación cuenta corriente' },
                     { value: '25', text: 'Pago en efectivo' },
-                    { value: '27', text: 'Abono a cuenta corriente' },
                     { value: '33', text: 'Pre-notificación cuenta ahorros' },
-                    { value: '37', text: 'Abono a cuenta de ahorros' },
                     { value: '40', text: 'Efectivo seguro/Tarjeta prepago' },
                     { value: '52', text: 'Abono a depósito electrónico' },
                     { value: '53', text: 'Pre-notificación depósito electrónico' }
-                  ];
-                for(let i = 0; i < options.length; i++){
-                    typeTrans.addSelectOption({value : options[i].value,text : options[i].text});
+                ];
+                for (let i = 0; i < options.length; i++) {
+                    typeTrans.addSelectOption({ value: options[i].value, text: options[i].text });
                 }
                 form.addSubmitButton({ label: 'Guardar dispersión' })
                 for (let i = 0; i < dataTransaction.length; i++) {
@@ -193,10 +191,10 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                     fieldSublist.setSublistValue({ id: 'custpage_s4_numberdocument', line: i, value: dataTransaction[i].documentNumber });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_numberbank', line: i, value: dataTransaction[i].bankNumber });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_codebank', line: i, value: dataTransaction[i].codeBank });
-                    fieldSublist.setSublistValue({ id: 'custpage_s4_reference', line: i, value:' ' });
-                    fieldSublist.setSublistValue({ id: 'custpage_s4_concept', line: i, value: ' '});
+                    fieldSublist.setSublistValue({ id: 'custpage_s4_reference', line: i, value: ' ' });
+                    fieldSublist.setSublistValue({ id: 'custpage_s4_concept', line: i, value: ' ' });
                 }
-                
+
                 log.audit('typeTrans: ', typeTrans)
                 fieldAmount.updateDisplayType({ displayType: serverWidget.FieldDisplayType.ENTRY });
                 fieldAmount.maxLength = 10;
@@ -205,11 +203,13 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 fieldReConcept.updateDisplayType({ displayType: serverWidget.FieldDisplayType.ENTRY });
                 fieldReConcept.maxLength = 9;
                 fldTypeAccount.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
+                fieldDateCreation.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
                 fldNit.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
                 fldNumberAccount.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
                 // fieldDateCreation.updateDisplayType({ displayType: serverWidget.FieldDisplayType.INLINE });
                 fldNit.defaultValue = ' ';
                 fldTypeAccount.defaultValue = ' ';
+                fieldDateCreation.defaultValue = new Date();
                 fldNumberAccount.defaultValue = ' ';
                 if (params['custpage_s4_company']) {
                     empresa.defaultValue = params['custpage_s4_company']
@@ -266,7 +266,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 const fix = params['custpage_s4_dateaplication'];
                 const fix2 = params['custpage_s4_dateacreation']
                 let total = 'son10carac'
-                let numTrans = 'x'
+                let numTrans = 'xxxxxx'
                 let header = '1';
                 // log.audit('params: ', params)
                 header += (params['custpage_s4_nit']).padStart(10, '0');
@@ -276,7 +276,6 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 header += (fix2.slice(2, 4) + fix2.slice(5, 7) + fix2.slice(8, 10));
                 header += 'C'
                 header += (fix.slice(2, 4) + fix.slice(5, 7) + fix.slice(8, 10));
-                header += '00000';
                 header += numTrans;
                 header += '00000000000000';
                 header += total;
@@ -284,7 +283,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 header += (params['custpage_s4_type_account']).slice(0, 1)
                 header += '\n';
                 log.audit('header: ', header)
-                
+
                 let cont = 0
                 let cont2 = 0
                 for (let i = 0; i < line; i++) {
@@ -299,32 +298,33 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                         line2 += '6';
                         line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_numberdocument' })).padStart(15, '0');
                         line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_companyname' })).padEnd(18, ' ');
-                        line2 += ((request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_codebank' })).slice(0,4)).padStart(9, '0');
+                        line2 += ((request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_codebank' })).slice(0, 4)).padStart(9, '0');
                         line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_numberbank' })).padStart(17, '0')
                         line2 += 'S'
                         line2 += trans
                         line2 += (Math.round(amount_payment).toString()).padStart(10, '0');/*((parseFloat(amount_payment).toFixed(2)).padStart(11, '0').replace('.', ''));*/
-                        if(trans =='25'){
+                        if (trans == '25') {
                             line2 += '  '
-                            line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_typedocument' })).padStart(6, '0')
+                            line2 += ((request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_typedocument' })).slice(0, 1)).padStart(6, '0')
                             line2 += ' '
-                        }else{
+                        } else {
                             line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_concept' })).padEnd(9, ' ')
                         }
-                        line2 +=(request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_reference' })).padEnd(12, ' ') 
+                        line2 += (request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_reference' })).padEnd(12, ' ')
                         line2 += '\n';
                         header += line2;
-                        cont +=1
+                        cont += 1
                         cont2 += Math.round(amount_payment)
-                            // (Math.round(amount_payment).toString()).padStart(9, '0');
+                        // (Math.round(amount_payment).toString()).padStart(9, '0');
 
                     }
                 }
                 cont2 = (cont2.toString()).padStart(10, '0');
-                log.audit('cont2: ' , cont2);
+                log.audit('cont2: ', cont2);
+                cont = (cont.toString()).padStart(6, '0');
                 header = header.replace(total, cont2)
                 header = header.replace(numTrans, cont)
-                
+
                 const archivo = file.create({
                     name: 'Archivo SAP.txt',
                     fileType: 'PLAINTEXT',
