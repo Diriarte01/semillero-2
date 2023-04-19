@@ -43,7 +43,7 @@ define(['./pop_up.js','N/search','N/record'],
       const countInvoiceCustomer = data.filter((rs)=> rs == id).length
       
       pop_up.fire({
-        title: '<strong>Información del Cliente</strong>',
+        title: '<strong>Información del inmueble</strong>',
         icon: 'info',
         html:`
             <h1>Nombre: <strong>${name}</strong></h1>
