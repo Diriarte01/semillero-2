@@ -3,7 +3,7 @@
  *@NScriptType Suitelet
  *@author Xavier Gonzalez
  */
-define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https', 'N/task', 'N/redirect'], function (serverWidget, file, search, https, task, redirect) {
+define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/task', 'N/url',], function (serverWidget, file, search, task, url ) {
     const handlers = {};
 
     const subsidiary = () => {
@@ -277,10 +277,22 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https', 'N/task', 'N/redir
                     response.writePage(form)
                 }
             } else {
+                let domain = url.resolveDomain({
+                    hostType: url.HostType.APPLICATION,
+                    accountId: 'TSTDRV2720031'
+                }) 
                 fieldType.defaultValue= "POST";
                 let body = '';
                 const line = request.getLineCount({ group: 'custpage_s4_sublist' });
                 form.title = 'Archivo Generado con Exito';
+                const fieldhtml =form.addField({
+                    id: 'custpage_fiel1',
+                    label: ' ',
+                    type: 'INLINEHTML'
+                }) 
+                fieldhtml.defaultValue = "<div style='background-color: #94D0E0; border-radius: 5px; border: 3px solid #94D0E0; padding: 10px 35px; width:100%; height: auto;'>";
+                fieldhtml.defaultValue += "<p><strong style='font-size:18px;color:white;'><b>" + "Regresar al menu principal:" + "</b></strong>" + "</p>";
+                fieldhtml.defaultValue += "<p>" + "<strong style='font-size:15px;margin-inline-start:15px;color:white;'><a href='" + 'https://' + domain + '/app/site/hosting/scriptlet.nl?script=150&deploy=1' + "'>" + "Ventana Principal de Netsuite" + "</a></strong>" + "</p>"
 
 
                 const internal_id = form.addField({ id: 'custpage_s4_internalid', label: 'ID Interno', type: 'text', })
