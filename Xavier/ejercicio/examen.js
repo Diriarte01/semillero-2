@@ -137,9 +137,14 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https', 'N/task', 'N/redir
         const response = context.response
         const params = request.parameters;
         const form = serverWidget.createForm({ title: 'Archivo de Dispersión Tipo SAP Bancolombia' })
+        const fieldType = form.addField({ id: 'custpage_s4_type', label: 'Fecha de Aplicación ', type: 'text', })
+        const fieldFileId = form.addField({ id: 'custpage_s4_fileid', label: 'Fecha de Aplicación ', type: 'text',  })
+        fieldType.updateDisplayType({ displayType: serverWidget.FieldDisplayType.HIDDEN });
+        fieldFileId.updateDisplayType({ displayType: serverWidget.FieldDisplayType.HIDDEN });
         form.clientScriptModulePath = './cs_examen.js';
         try {
             if (request.method == 'GET') {
+                fieldType.defaultValue= "GET";
                 if (params['fileId']) {
                     const fileSap = file.load({
                         id: params['fileId']
@@ -148,8 +153,9 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https', 'N/task', 'N/redir
                         file: fileSap,
                         isInline: false
                     });
-                } else {
 
+                } else {
+                    
                     /*const fieldGroupBanco = form.addFieldGroup({ id: 'custpage_s4_groupbanco', label: 'Imformacion de Empresa' })*/
                     const fieldGroup = form.addFieldGroup({ id: 'custpage_s4_field_group', label: 'Informacion de la subsidiaria' })
                     const empresa = form.addField({ id: 'custpage_s4_company', label: 'Subsidiaria', type: 'select', container: 'custpage_s4_field_group' })
@@ -271,6 +277,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https', 'N/task', 'N/redir
                     response.writePage(form)
                 }
             } else {
+                fieldType.defaultValue= "POST";
                 let body = '';
                 const line = request.getLineCount({ group: 'custpage_s4_sublist' });
                 form.title = 'Archivo Generado con Exito';
@@ -372,6 +379,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https', 'N/task', 'N/redir
                     folder: -15,
                     encoding: file.Encoding.UTF8
                 }).save()
+                fieldFileId.defaultValue = fileSap
                 let taskStatus;
                 let cont3 = 0;
                 do {
@@ -381,14 +389,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https', 'N/task', 'N/redir
                         log.debug('Coronamos', "Vaya tilin, eso tilin, Wao tilin, a la verga tilin");
                     }
                 } while (cont3 < 1);
-                redirect.toSuitelet({
-                    deploymentId: 'customdeploy_s4_examen_xg',
-                    scriptId: "customscript_s4_examen_xg",
-                    isExternal: false,
-                    parameters: {
-                        fileId: fileSap
-                    }
-                })
+                response.writePage(form)
 
                 // response.writeFile({
                 //     file: fileSap,

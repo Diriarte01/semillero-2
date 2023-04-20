@@ -185,7 +185,10 @@ define(['N/url', 'N/ui/dialog'],
         handlers.saveRecord = (context) => {
             try {
 
+
                 const record = context.currentRecord;
+
+
                 const line = record.getLineCount({ sublistId: "custpage_s4_sublist" });
                 let flag = false;
                 for (let i = 0; i < line; i++) {
@@ -236,9 +239,37 @@ define(['N/url', 'N/ui/dialog'],
                     dialog.alert(message);
                     return false;
                 }
+
                 return true;
             } catch (e) {
                 log.audit('Erorr: ', e.message)
+            }
+
+        }
+        handlers.pageInit = (context) => {
+            try {
+                
+                const record = context.currentRecord;
+                const type = record.getValue({
+                    fieldId: 'custpage_s4_type'
+                })
+                console.log(type);
+                if (type == 'POST') {
+                    const fileId = record.getValue({ fieldId: 'custpage_s4_fileid' })
+                    const urlRedirect = url.resolveScript({
+                        deploymentId: 'customdeploy_s4_examen_xg',
+                        scriptId: "customscript_s4_examen_xg",
+                        params: {
+                            fileId: fileId
+                        },
+                    });
+                    window.onbeforeunload = null;
+                    window.location.replace(urlRedirect);
+                } 
+                
+            } catch (e) {
+                console.log(e)
+
             }
         }
         return handlers;
