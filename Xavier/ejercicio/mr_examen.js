@@ -3,28 +3,31 @@
  *@NScriptType MapReduceScript
  *@author Xavier Gonzalez
  */
-define([], function() {
+define(['N/runtime', 'N/record'], function(runtime, record) {
     const handlers = {};
-    function getInputData() {
-        
+    handlers.getInputData=(context)=> {
+        const values = runtime.getCurrentScript();
+        const params = JSON.parse(values.getParameter({ name: 'custscript_s4_parammap_xg' }))
+        return params
     }
 
-    function map(context) {
+    handlers.map=(context) => {
+        const value = JSON.parse(context.value)
+        log.audit('value', value)
+        const vendorPayment = record.create({
+            type: record.Type.VENDOR_PAYMENT,
+            isDynamic: true,
+            defaultValues: {
+                entity:value.vendorId,
+                total: value.amount,
+
+
+            }
         
+         })
     }
 
-    function reduce(context) {
-        
-    }
+    
 
-    function summarize(summary) {
-        
-    }
-
-    return {
-        getInputData: getInputData,
-        map: map,
-        reduce: reduce,
-        summarize: summarize
-    }
+    return handlers;
 });

@@ -3,7 +3,7 @@
  *@NScriptType Suitelet
  *@author Xavier Gonzalez
  */
-define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverWidget, file, search, https) {
+define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https','N/task'], function (serverWidget, file, search, https,task) {
     const handlers = {};
 
     const subsidiary = () => {
@@ -61,7 +61,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
         return response;
 
     }
-    const searchTrans = (subsidiary) => {
+    const searchTrans = () => {
         const response = [];
         const vendorbillSearchObj = search.create({
             type: "vendorbill",
@@ -73,7 +73,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                     "AND",
                     ["vendor.custentity_s4_entity_document_number2", "isnotempty", ""],
                     "AND",
-                    ["subsidiary", "anyof", subsidiary],
+                    ["subsidiary", "anyof", "1"],
                     "AND",
                     ["amountremaining", "greaterthan", "0.00"]
                 ],
@@ -81,6 +81,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 [
                     search.createColumn({ name: "amount", label: "Importe" }),
                     search.createColumn({ name: "datecreated", label: "Fecha de creación" }),
+                    search.createColumn({name: "amountremaining", label: "Importe restante"}),
                     search.createColumn({
                         name: "companyname",
                         join: "vendor",
@@ -105,20 +106,26 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                         name: "custentity_s4_cod_bank",
                         join: "vendor",
                         label: "Codigo de banco"
-                    })
+                    }),
+                    search.createColumn({
+                        name: "internalid",
+                        join: "vendor",
+                        label: "ID interno"
+                     })
                 ]
         });
 
         vendorbillSearchObj.run().each(function (rs) {
             response.push({
-                importe: rs.getValue('amount'),
+                internalId: rs.id,
+                importe: rs.getValue('amountremaining'),
                 datecreate: rs.getValue('datecreated'),
                 companyname: rs.getValue({ name: "companyname", join: "vendor" }),
                 typeDocument: rs.getText({ name: "custentity_s4_type_document", join: "vendor" }),
                 documentNumber: rs.getValue({ name: "custentity_s4_entity_document_number", join: "vendor" }),
                 bankNumber: rs.getValue({ name: "custentity_s4_entity_document_number2", join: "vendor" }),
-                codeBank: rs.getText({ name: "custentity_s4_cod_bank", join: "vendor" })
-
+                codeBank: rs.getText({ name: "custentity_s4_cod_bank", join: "vendor" }),
+                vendorId: rs.getValue({ name: "internalid", join: "vendor" }),
             })
             return true;
         });
@@ -158,9 +165,11 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 fieldSublist.addMarkAllButtons();
                 // fieldSublist.addCheckboxColumn({id: 'custpage_checkbox',label: 'Select'});
                 fieldSublist.addField({ id: 'custpage_s4_checkbox', label: 'CHECKBOX', type: serverWidget.FieldType.CHECKBOX })
-                const fieldAmount = fieldSublist.addField({ id: 'custpage_s4_importe', label: 'IMPORTE', type: serverWidget.FieldType.CURRENCY })
+                fieldSublist.addField({ id: 'custpage_s4_id', label: 'ID', type: serverWidget.FieldType.TEXT})
+                const fieldAmount = fieldSublist.addField({ id: 'custpage_s4_importe', label: 'IMPORTE RESTANTE', type: serverWidget.FieldType.CURRENCY })
                 fieldSublist.addField({ id: 'custpage_s4_datecreate', label: 'FECHA DE CREACIÓN', type: serverWidget.FieldType.TEXT })
-                fieldSublist.addField({ id: 'custpage_s4_companyname', label: 'NOMBRE DE PROVEEDOR', type: serverWidget.FieldType.TEXT })
+                const fieldCompany = fieldSublist.addField({ id: 'custpage_s4_companyname', label: 'NOMBRE DE PROVEEDOR', type: serverWidget.FieldType.TEXT })
+                fieldSublist.addField({ id: 'custpage_s4_idvenndor', label: 'ID DE PROVEEDOR', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_typedocument', label: 'TIPO DE DOCUMENTO', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_numberdocument', label: 'NUMERO DE DOCUMENTO', type: serverWidget.FieldType.TEXT })
                 fieldSublist.addField({ id: 'custpage_s4_numberbank', label: 'NUMERO DE CUENTA BANCARIA', type: serverWidget.FieldType.TEXT })
@@ -168,6 +177,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 const fieldReference = fieldSublist.addField({ id: 'custpage_s4_reference', label: 'REFERENCIA', type: serverWidget.FieldType.TEXT })
                 const fieldReConcept = fieldSublist.addField({ id: 'custpage_s4_concept', label: 'CONCEPTO', type: serverWidget.FieldType.TEXT })
                 const typeTrans = fieldSublist.addField({ id: 'custpage_s4_typetrans1', label: 'TIPO DE TRANSACCIÓN', type: serverWidget.FieldType.SELECT })
+                // fieldCompany.maxLength = 10;
                 typeTrans.isMandatory = true;
                 const options = [
                     { value: '37', text: 'Abono a cuenta de ahorros' },
@@ -184,13 +194,15 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 }
                 form.addSubmitButton({ label: 'Guardar dispersión' })
                 for (let i = 0; i < dataTransaction.length; i++) {
+                    fieldSublist.setSublistValue({ id: 'custpage_s4_id', line: i, value: dataTransaction[i].internalId });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_importe', line: i, value: dataTransaction[i].importe });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_datecreate', line: i, value: dataTransaction[i].datecreate });
-                    fieldSublist.setSublistValue({ id: 'custpage_s4_companyname', line: i, value: dataTransaction[i].companyname });
+                    fieldSublist.setSublistValue({ id: 'custpage_s4_companyname', line: i, value: (dataTransaction[i].companyname).slice(0,16) });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_typedocument', line: i, value: dataTransaction[i].typeDocument });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_numberdocument', line: i, value: dataTransaction[i].documentNumber });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_numberbank', line: i, value: dataTransaction[i].bankNumber });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_codebank', line: i, value: dataTransaction[i].codeBank });
+                    fieldSublist.setSublistValue({ id: 'custpage_s4_idvenndor', line: i, value: dataTransaction[i].vendorId });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_reference', line: i, value: ' ' });
                     fieldSublist.setSublistValue({ id: 'custpage_s4_concept', line: i, value: ' ' });
                 }
@@ -262,6 +274,7 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                 // fldType.updateDisplayType({ displayType: serverWidget.FieldDisplayType.HIDDEN });
 
                 /* Encabezado del documeno */
+                const paramsMap = []
                 const dateCreate = new Date()
                 const fix = params['custpage_s4_dateaplication'];
                 const fix2 = params['custpage_s4_dateacreation']
@@ -316,9 +329,25 @@ define(['N/ui/serverWidget', 'N/file', 'N/search', 'N/https'], function (serverW
                         cont += 1
                         cont2 += Math.round(amount_payment)
                         // (Math.round(amount_payment).toString()).padStart(9, '0');
+                        const obj = new Object();
+                        obj.id = request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_id' })
+                        obj.vendorId = request.getSublistValue({ group: 'custpage_s4_sublist', line: i, name: 'custpage_s4_idvenndor' })
+                        obj.amount = amount_payment
+                        obj.date = (fix2.slice(2, 4) + fix2.slice(5, 7) + fix2.slice(8, 10));
+                        obj.account = params['custpage_s4_account']
+                        paramsMap.push(obj);
 
                     }
                 }
+                const mapTask = task.create({
+                    taskType:task.TaskType.MAP_REDUCE,
+                    params: {'custscript_s4_parammap_xg':paramsMap},
+                    scriptId: 'customscript_s4_mr_examen_xg',
+                    
+                });
+                const mapTaskId =mapTask.submit();
+
+                log.audit('params', paramsMap)
                 cont2 = (cont2.toString()).padStart(10, '0');
                 log.audit('cont2: ', cont2);
                 cont = (cont.toString()).padStart(6, '0');
