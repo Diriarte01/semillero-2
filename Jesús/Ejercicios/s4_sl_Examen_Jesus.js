@@ -25,7 +25,6 @@
              
 
              let html = `
-             <!DOCTYPE html>
              <html>
                <head>
                <meta charset="UTF-8" />
@@ -180,7 +179,7 @@
          } catch (e) {
              log.debug('Error al rendering', e)
          } finally {
-             response.writePage(form)
+             response.write(html)
          }
      }
 

@@ -2,8 +2,8 @@
  *@NApiVersion 2.1
  *@NScriptType Suitelet
  */
-define(['N/http', 'N/https'],
-    function (http, https) {
+define(['N/https'],
+    function ( https) {
 
         function onRequest(context) {
             const request = context.request;
