@@ -1,87 +1,94 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
-    
-    <title>Categories</title>
-    
-      <style>
-        h1 {
-            text-align: center;
-            font-family: 'Montserrat', sans-serif;
-        }
-        body {
-            background-color: #61868E;
-            background-size: cover;
-            background-position: center;
-            text-align: center;
-        }
-        #category-container {
-        display: grid;
-        place-items: center;
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
+
+  <title>Categories</title>
+
+  <style>
+    h1 {
+      text-align: center;
+      font-family: 'Montserrat', sans-serif;
     }
 
-      .category {
-        display: inline-block;
-        margin: 20px;
-        cursor: pointer;
-        font-family: 'Montserrat', sans-serif;
-        text-align: center;
+    body {
+      background-color: #61868E;
+      background-size: cover;
+      background-position: center;
+      text-align: center;
+    }
 
-      }
+    #category-container {
+      display: grid;
+      place-items: center;
+    }
 
-      
-      .category img {
-        width: 300px;
-        height: 300px;
-        display: inline-block;
-        margin: 0 auto;
-        border-radius: 10%;
-        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
-        border: 1px solid black;
-      }
-      img:hover {
-                transform: scale(1.05);
-              }
-      div {
-        display: flex;
-        justify-content: center;
-        }
-    </style>
-  </head>
-  <body>
-    <h1>Tienda Virtual Platzi</h1>
-    <div id="category-container">
+    .category {
+      display: inline-block;
+      margin: 20px;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      text-align: center;
+
+    }
+
+
+    .category img {
+      width: 300px;
+      height: 300px;
+      display: inline-block;
+      margin: 0 auto;
+      border-radius: 10%;
+      box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+      border: 1px solid black;
+    }
+
+    img:hover {
+      transform: scale(1.05);
+    }
+
+    div {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Tienda Virtual Platzi</h1>
+  <div id="category-container">
+    <div class="category" data-category="1">
+      <img src="111-640x640.jpg" alt="Categoría 1">
+      <h2>Clothes</h2>
+    </div>
+    <div class="category" data-category="2">
+      <img src="electronics.jpg" alt="Categoría 2">
+      <h2>Electronics</h2>
+    </div>
+    <div class="category" data-category="3">
+      <img src="furniture.jpg" alt="Categoría 3">
+      <h2>Furniture</h2>
+    </div>
+    <div>
       <div class="category" data-category="1">
-        <img src="111-640x640.jpg" alt="Categoría 1">
-        <h2>Clothes</h2>
-      </div>
-      <div class="category" data-category="2">
-        <img src="electronics.jpg" alt="Categoría 2">
-        <h2>Electronics</h2>
-      </div>
-      <div class="category" data-category="3">
-        <img src="furniture.jpg" alt="Categoría 3">
-        <h2>Furniture</h2>
+        <img src="shoes.jpg" alt="Categoría 4">
+        <h2>Shoes</h2>
       </div>
       <div>
         <div class="category" data-category="1">
-          <img src="shoes.jpg" alt="Categoría 4">
-          <h2>Shoes</h2>
+          <img src="other.jpg" alt="Categoría 5">
+          <h2>Others</h2>
         </div>
-        <div>
-            <div class="category" data-category="1">
-              <img src="other.jpg" alt="Categoría 5">
-              <h2>Others</h2>
-            </div>
-    </div>
-    <div id="products">
-      <!-- aquí se mostrarán los productos de la categoría seleccionada -->
-    </div>
-    <script>
-     </script>
-  </body>
+      </div>
+      <div id="products">
+        <!-- aquí se mostrarán los productos de la categoría seleccionada -->
+      </div>
+      <script>
+      </script>
+</body>
+
 </html>
