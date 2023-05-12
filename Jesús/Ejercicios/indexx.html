@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+
+    <head>
+        <meta charset="UTF-8">
+        </meta>
+        <title>Ejecución de orden de articulo</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 40px 20px 20px 20px;
+                padding: 0;
+            }
+
+            td {
+                font-size: 12px;
+                border-bottom: 1px solid #ddd;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            th {
+                font-size: 14px;
+                background-color: #f2f2f2;
+                padding: 8px;
+                text-align: left;
+            }
+
+            .invoice-total {
+                background-color: #f2f2f2;
+            }
+
+            .valor-en-letras p {
+                font-size: 12px;
+            }
+
+            .invoice-info p {
+                margin: 5px 0;
+            }
+
+            .valor {
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <table>
+            <tr>
+                <td>
+
+                </td>
+                <td colspan="2">
+                    <p>INFINIA TECNOLOGIA Y SERVICIOS</p>
+                    <p>RFC: ITS130222JK8</p>
+                    <p>Egreso</p>
+                    <p>Italia Providencia Guadalajara Jalisco</p>
+                    <p>México, CP 44648</p>
+                    <p>Régimen Fiscal: 601 General de Ley Personas Morales</p>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>
+                    <p>Forma de pago vendorName</p>
+                    <p>Método de pago payment method</p>
+                    <p>vendor_number Moneda vendor_number</p>
+                </td>
+                <td colspan="2">
+                    <p>vendorName</p>
+                    <p>payment method</p>
+                    <p>vendor_number</p>
+                </td>
+                <td colspan="2">
+                    <p>Folio dateEmission</p>
+                    <p>Fecha expirationDate</p>
+                </td>
+                <td>
+                    <p>number folio</p>
+                    <p>date</p>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td colspan="2">
+                    <p>Vendedor vendorName</p>
+                    <p>Condiciones de pago payment_terms</p>
+                    <p>Orden de compra No. purchase_order</p>
+                    <p>Referencia Reference</p>
+                </td>
+                <td colspan="2">
+                    <p>Vendedor vendorName</p>
+                    <p>Condiciones de pago payment_terms</p>
+                    <p>Orden de compra No. purchase_order</p>
+                    <p>Referencia Reference</p>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>
+                    <p>Datos del cliente</p>
+                    <p>Cliente: customer</p>
+                    <p>R.F.C: Rfc</p>
+                    <p>Domicilio: home </p>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <th>Cantidad</th>
+                <th>Codigo</th>
+                <th>Unidad</th>
+                <th>Unidad SAT</th>
+                <th>Codigo SAT</th>
+                <th>Descripción</th>
+                <th>Valor unitario</th>
+                <th>Impuestos</th>
+                <th>Importe</th>
+            </tr>
+            <tr>
+                <td>Cantidad</td>
+                <td>Codigo</td>
+                <td>Unidad</td>
+                <td>Unidad SAT</td>
+                <td>Codigo SAT</td>
+                <td>Descripción</td>
+                <td>Valor unitario</td>
+                <td>Impuestos</td>
+                <td>Importe</td>
+            </tr>
+        </table>
+        <div>
+            <div>
+                <table>
+                    <tr>
+                        <td>
+                            <p>Importe con letra:</p>
+                        </td>
+                        <td>
+                            <p>Subtotal:</p>
+                            <p>I.V.A:</p>
+                            <p>Total:</p>
+                        </td>
+                        <td>
+                            <p>$</p>
+                            <p>$</p>
+                            <p>$</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
+</pdf>`

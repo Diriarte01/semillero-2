@@ -1,0 +1,171 @@
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<meta charset="UTF-8"></meta>
+<title>Ejecución de orden de artículo </title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px 20px 20px 20px;
+    padding: 0;
+}
+
+td {
+    font-size: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            th {
+                font-size: 14px;
+                background-color: #f2f2f2;
+                padding: 8px;
+                text-align: left;
+            }
+            
+            .invoice-total {
+                background-color: #f2f2f2;
+            }
+            
+            .valor-en-letras p {
+                font-size: 12px;
+            }
+            
+            .invoice-info p {
+                margin: 5px 0;
+            }
+                                 
+            .valor {
+                margin-bottom: 20px;
+            }
+            
+            </style>
+            </head>
+            
+            <body>
+            
+                <table style="border: none; border-bottom: none;">
+                    <tr style="border: none;">
+                      <td style="border-bottom: none; text-align: left;">
+                        <img src="./logo_infinia.png" alt="Logo de la empresa" style="width: 410px; height: 200px; border: none;"></img>
+                      </td>
+                      <td colspan="2" style="margin-top: 20px; margin-left: -20px; text-align: center; background-color: rgb(65, 133, 244); color: white; border: none; font-family: Calibri, sans-serif;font-size: 15px;">
+                        <p style="font-family: Calibri, sans-serif;">INFINIA TECNOLOGIA Y SERVICIOS</p>
+                        <p style="margin: 0;"><strong> RFC: ITS130222JK8</strong></p>
+                        <p style="margin: 0;">Egreso</p>
+                        <p style="margin: 0;">Italia Providencia Guadalajara Jalisco</p>
+                        <p style="margin: 0;">México, CP 44648</p>
+                        <br>
+                        <p style="margin: 0;">Régimen Fiscal: 601 General de Ley Personas Morales</p>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                <table style= "margin-top:20px";border="none">
+                   <tr border="none">
+                    <td colspan="2" style="background-color: lightgray; margin-right: 10px; border: none; width: 10%; border-right: 2px solid white;font-family: Calibri, sans-serif;">
+                            <p><strong>Forma de pago</strong> vendorName}</p>
+                            <p><strong>Método de pago</strong> payment method</p>
+                            <p><strong>Moneda</strong> vendor_number}</p>
+                       </td>
+                       <td colspan="2" style="margin-right: 10px; border: none; width: 45.%; border-right: 2px solid white;font-family: Calibri, sans-serif;">
+                        <p><strong>vendorName}</strong> </p>
+                        <p><strong>payment method</strong> </p>
+                        <p><strong>vendor_number}</strong> </p>
+                   </td>
+
+                       <td colspan="2" style="background-color: lightgray; margin-right: 10px; border: none; width: 10%; border-bottom: none;font-family: Calibri, sans-serif;vertical-align:top">
+                           <p><strong>Folio</strong> dateEmission}</p>
+                           <p><strong>Fecha</strong> expirationDate}</p>                          
+                        </td>
+                        <td style="border: none; border-bottom: none; text-align: center;vertical-align:top">
+                            <p>number folio</p>
+                            <p>date</p>
+                        </td>
+                   </tr>
+                   </table>
+                   <table style="margin-top: 20px; border: none;">
+                    <tr>
+                      <td colspan="2" style="background-color: rgb(211, 211, 211); margin-right: 10px; border-bottom: none; width: 10%; border-top: 1px solid white; font-family: Calibri, sans-serif;">
+                        <p><strong>Vendedor</strong> vendorName}</p>
+                        <p><strong>Condiciones de pago</strong> payment_terms}</p>
+                        <p><strong>Orden de compra No.</strong> purchase_order}</p>
+                        <p><strong>Referencia</strong> Reference}</p>
+                      </td>
+                      <td>
+                        <div style="width: 1px; height: 100%; background-color: white;border-bottom: none;"></div>
+                      </td>
+                      <td colspan="2" style="background-color: rgba(245, 239, 239, 0.552); margin-left: 10px; width: 90%; border-top: 1px solid rgb(255, 255, 255); font-family: Calibri, sans-serif;border-bottom: none;">
+                        <p><strong>Vendedor</strong> vendorName}</p>
+                        <p><strong>Condiciones de pago</strong> payment_terms}</p>
+                        <p><strong>Orden de compra No.</strong> purchase_order}</p>
+                        <p><strong>Referencia</strong> Reference}</p>
+                      </td>
+                    </tr>
+                  </table>
+                  <table class="invoice-items" style="margin-top: 20px;">
+                    <tr>
+                      <td style="border-bottom: none; font-family: Calibri, sans-serif;">
+                        <p style="background-color: rgb(211, 211, 211);"><strong>Datos del cliente</strong></p>
+                        <p><strong>Cliente:</strong> customer}</p>
+                        <p><strong>R.F.C:</strong> Rfc}</p>
+                        <p><strong>Domicilio:</strong> home} </p>
+                      </td>
+                    </tr>
+                  </table>
+                  
+               <table class="invoice-items" style="margin-top: 20px; border-collapse: collapse;">
+                <tr style="background-color: lightgray; font-family: Arial, sans-serif;">
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Cantidad</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Código</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Unidad</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Unidad<br>SAT</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Código SAT</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Descripción</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Valor unitario</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Impuestos</th>
+                  <th style="border: 1px solid black; vertical-align:top; padding: 5px; text-align: center;">Importe</th>
+                </tr>
+                <tr style="font-family: Calibri, sans-serif;">
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Cantidad</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Código</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Unidad</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Unidad<br>SAT</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Código SAT</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Descripción</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Valor unitario</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Impuestos</td>
+                  <td style="font-size: 10px; border: 1px solid black; padding: 5px; text-align: center; vertical-align: top;">Importe</td>
+                </tr>
+              </table>
+              
+              
+        <div align="right" width="25%" class="invoice-total">
+          <div>
+            <table style="border:none; background-color: white;">
+                <tr style="border:none; padding:0;">
+                  <td width="20%" style="border:none; vertical-align: top;">
+                    <p style="margin-top: 0;"><strong style="margin-bottom: 5px;">Importe con letra:<br></strong></p>
+                  </td>
+                  <td align="right" style="border:none;">
+                    <p style="font-size:15px;"><strong>Subtotal:</strong></p>
+                    <p style="font-size:15px;"><strong>I.V.A:</strong></p> 
+                    <p style="font-size:15px;"><strong>Total:</strong></p>
+                  </td>
+                  <td style="border:none;">
+                    <p style="font-size:15px;">$</p>
+                    <p style="font-size:15px;">$</p>
+                    <p style="font-size:15px;"><strong>$</strong></p>
+                  </td>
+                </tr>
+              </table>
+              
+                   </div>
+               </div>
+                    </body>
+                    </pdf>

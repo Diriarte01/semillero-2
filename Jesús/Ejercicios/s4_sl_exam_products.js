@@ -26,13 +26,15 @@
              h1 {
                  text-align: center;
                  font-family: 'Montserrat', sans-serif;
+                 color: rgba(255, 255, 255, 0.9);
              }
              
                  body {
-                     background-color: #61868E;
+                     background-image: url('https://tstdrv2720031.app.netsuite.com/core/media/media.nl?id=11594&c=TSTDRV2720031&h=aPr1gabHq-m9-GNWjpBzSeNgK8WSXn7JfZb6VrSR_2FYV8xw');
                      background-size: cover;
                      background-position: center;
                      text-align: center;
+                     color: rgba(255, 255, 255, 0.9);
                  }
                  
                  #category-container {
@@ -46,6 +48,7 @@
                      cursor: pointer;
                      font-family: 'Montserrat', sans-serif;
                      text-align: center;
+                     color: rgba(255, 255, 255, 0.9);
                  }
                  
                  
