@@ -1,0 +1,131 @@
+Comentarios: para crear comentarios usamos // o /**/
+
+// para usarse en una linea.(comentario de una linea)
+/**/ comenta todo lo que esté contenido en esto. (Comentario de varias lineas)
+
+Variables: es un contenedor de un valor especifico. var, const, let.
+Tipos de datos : undefined, null, boolean, string, symbol, number, y object.
+función para poder ver los valores de una variable ( console.log(), en suitescript es log.debug()). muestra los valores que esten dentro del parentesis.
+
+Operadores de aginación: el operador de asignación es el signo igual (=).
+var a; varibale undefined porque no tiene asignado ningun valor
+var b = 2; variable con valor 2 ya que es el valor asignado para este caso.
+
+Asignar el valor de una variable a otra variable: 
+
+var a = 7;
+var b = a; || b=a;
+
+console.log(a);
+console.log(b);
+
+Inicializar Variables: cuando le declaramos un valor a una variable la estámos inicializando
+
+ejmeplo: 
+var miIdioma = "Español"; // es una varibale declarada y a su vez inicializada.
+
+Variables no inicializadas:  son las variables que no tienen un valor asignado.
+
+var a;
+var b; 
+
+
+Case-Sensitive: sensible a mayusculas y minusculas, las variables declaradas cuando sean llamadas deben estar escrita de la misma forma con la cual fue declarada
+
+Operaciones aritmeticas:
+
+a + 1 ||  a += 1 || a++
+a - 1 ||  a -= 1 || a--
+a * 1 ||  a *= 1 
+a / 1 ||  a /= 1
+a % 1 ||  a %= 1
+
+saber la cantidad de caracteres de una cadena: 
+ejemolo
+
+var cantidad = "12236   5555"
+console.log(cantidad.length)
+
+length nos cuenta la cantidad de caracteres que contenga una variable, tambien los espacios son tomaos como caractes.
+
+inmutabilidad de las cadenas:
+
+inmutable : que no es posible cambiar
+
+Como acceder al ultimo caracter de una cadena de caracteres:
+var miCadena;
+
+miCadena =  "JavaScript";
+
+console.log(miCadena[miCadena.length - 1]);
+
+respuesta en consola seria t.
+
+remover ultimo valor de un arreglo .pop
+remover el primero valor de un arreglo .shift
+agregar un valor y que sea el primer elemento para un arreglo .unshift
+
+Funciones: 
+definicion de una funcion: function nombreDeLaFuncion (){};
+console.log("Hola Mundo");
+para llamar despúes la función solo es necesario escrubir nombreDeLaFuncion(); y aparece en consola el mensaje Hola Mundo, para este caso sería así.
+
+Argumentos: 
+Son los valores asignados a los parametros.
+
+Ambito Global:
+tipos de variables: globales y locales
+globales: se puede usar en cualquier lugar del programa porque está definida en el programa principal y no dentro de una funcion.
+local: son variables que definimos en una funcion y que solo se deben usar en esa funcion
+
+
+Retornar un valor: las funciones pueden retornar un valor ademas de recibir valores.
+
+Permanece en una fila (cola).
+ejemplo de variacion de una cola.
+ejemplo: definir una funcion proximoEnLaFila, debe tomar un arreglo y va tomar un numero llamado elemento, se debe agregar el numero al final del arreglo y luego 
+el primer elemento debe ser eliminado. la funcion proximoEnLaFila debe retornar el valor eliminado.
+
+function proximoEnLaFila(arreglo, elemento){
+    arreglo.push(elemento); // argregar al final del arreglo
+    return arreglo.shift(); // Remover el primer elemento    
+}
+var miArreglo = [1, 2, 3, 4, 5];
+
+console.log("Antes: " + JSON.stringify(miArreglo));
+
+console.log(proximoEnLaFila(miArreglo, 6));
+
+console.log("Después: " + JSON.stringify(miArreglo));
+
+JSON.stringify() permite mostrar el arreglo en una forma mas presentable en la consola.(cadena de caracteres en un formato especifico)
+
+
+Valores Booleanos:
+son verdadero (true) o falso(false) 
+
+operadores de igualdad
+
+operador de igualdad  (==)
+operador de igualdad estricta (===)
+
+Operadores de desigualdad
+operador de desigualdad (!=)
+operador de desigualdar estricta (!==)
+
+
+Operador mayor que  (>)
+
+
+Operadores logicos
+
+AND (&&)
+OR  (||)
+NOT (!) el signo de admiracion se coloca antes de la expresión a cambiar de valor por ejemplo si es X es true entonces !X seria false y viceversa.
+
+Sentencias Condicionales
+nos permiten decidir si un bloque de codigo se ejecuta o no dependiendo de la condicion.
+(if)
+
+
+

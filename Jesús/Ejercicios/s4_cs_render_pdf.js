@@ -7,15 +7,15 @@ define(['N/url','N/currentRecord'],
         const handlers = {};
         handlers.pageInit = (context) => { }
         handlers.pdfRemision = (internalId) => {
-            const url = context
             try {
                 const current = record.get();
-                const internalId = current.id
+                const itemFull = current.id
                 let urlRedirect = url.resolveScript({
                     deploymentId: 'customdeploy1',
                     scriptId: 'customscript_s4_sl_inf_render',
                     params: {
-                        internalId: internalId,
+                        salesOrder: internalId,
+                        itemFull: itemFull,
                     }
     
                 });

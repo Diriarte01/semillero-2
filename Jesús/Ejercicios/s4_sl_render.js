@@ -2,7 +2,7 @@
  *@NApiVersion 2.1
  *@NScriptType Suitelet
  */
-define(['N/render', 'N/file', 'N/record'], function (render, file, record) {
+define(['N/render', 'N/file', 'N/record', 'N/format'], function (render, file, record, format) {
     function onRequest(context) {
         try {
             const response = context.response;
@@ -14,35 +14,221 @@ define(['N/render', 'N/file', 'N/record'], function (render, file, record) {
     }
     function createPdf(context) {
         try {
-           const { request } = context;
+            const { request } = context;
             const params = request.parameters;
-            const internalId = params['internalId']
-            const loadedRecord = record.load({ type: 'itemfulfillment', id: internalId, isDynamic: true });
-            const wayToPay = loadedRecord.getText('paymentinstruments');// forma de pago
-            //const paymentMethod = loadedRecord.getValue('terms');  // metodo de pago
-            //const currency = loadedRecord.getValue('currency'); // moneda
-            //const invoice = loadedRecord.getValue('custbody_mx_cfdi_folio'); // folio
-            const date = loadedRecord.getValue('trandate'); // fecha
-            //const seller = loadedRecord.getValue(''); // vendedor
-            //const purchaseOrder = loadedRecord.getValue('tranid'); // orden de compra no.
-            //const reference = loadedRecord.getValue('tranid'); // referencia
-           // const customer = loadedRecord.getText('companyname'); // cliente
-            //const rfc = loadedRecord.getValue('custentity_mx_rfc'); // rfc
-            //const home = loadedRecord.getValue('defaultaddress'); // domicilio
-            //const amount = loadedRecord.getValue(''); // cantidad
-            //const code = loadedRecord.getValue('');  // código
-            //const unit = loadedRecord.getValue(''); // unidad 
-            //const unitSat = loadedRecord.getValue(''); // unidad sat
-            //const codeSat = loadedRecord.getValue('custcol_mx_txn_line_sat_item_code'); // codigo sat
-            //const description = loadedRecord.getValue(''); // descripción
-            //const unitValue = loadedRecord.getValue(''); // valor unitario
-            //const  tax = loadedRecord.getValue(''); // impuestos
-            //const amountValue = loadedRecord.getValue(''); // importe
+            const internalId = params['itemFull']; 
+            const salesOrderId = params.salesOrder;         
+            const renderInfinia = record.load({ type: 'itemfulfillment', id:internalId, isDynamic: true, });
+            const saleOrderData = record.load({ type: 'salesorder', id:salesOrderId, isDynamic: true, });
+            const wayToPay = saleOrderData.getText('paymentoption') || '-'; // forma de pago
+            const paymentMethod = saleOrderData.getText('terms') || '-';  // metodo de pago
+            const currency = saleOrderData.getText('currency') || '-';  // moneda
+            const invoice = renderInfinia.getText('custbody_mx_cfdi_folio'); // folio
+            const date = renderInfinia.getText('trandate'); // fecha
+            const seller = saleOrderData.getValue('salesrep')|| '-'; // vendedor
+            const purchaseOrder = saleOrderData.getValue('tranid') || '-'; // orden de compra no.
+            const reference = saleOrderData.getValue('custbody1') || '-'; // referencia
+            const customer = renderInfinia.getText('entity'); // cliente
+            const rfc = saleOrderData.getValue('custbody_mx_customer_rfc') || '-'; // rfc
+            const home = renderInfinia.getValue('shipaddress'); // domicilio
+            const taxes = saleOrderData.getValue('taxtotal');
+            let lines = renderInfinia.getLineCount({sublistId: "item"});
+            const numeroALetras = (function () {
+                // Código para mostrar el numero del total en letras
+                function Unidades(num) {
+    
+                    switch (num) {
+                        case 1:
+                            return 'UN';
+                        case 2:
+                            return 'DOS';
+                        case 3:
+                            return 'TRES';
+                        case 4:
+                            return 'CUATRO';
+                        case 5:
+                            return 'CINCO';
+                        case 6:
+                            return 'SEIS';
+                        case 7:
+                            return 'SIETE';
+                        case 8:
+                            return 'OCHO';
+                        case 9:
+                            return 'NUEVE';
+                    }
+    
+                    return '';
+                } //Unidades()
+    
+                function Decenas(num) {
+    
+                    let decena = Math.floor(num / 10);
+                    let unidad = num - (decena * 10);
+    
+                    switch (decena) {
+                        case 1:
+                            switch (unidad) {
+                                case 0:
+                                    return 'DIEZ';
+                                case 1:
+                                    return 'ONCE';
+                                case 2:
+                                    return 'DOCE';
+                                case 3:
+                                    return 'TRECE';
+                                case 4:
+                                    return 'CATORCE';
+                                case 5:
+                                    return 'QUINCE';
+                                default:
+                                    return 'DIECI' + Unidades(unidad);
+                            }
+                        case 2:
+                            switch (unidad) {
+                                case 0:
+                                    return 'VEINTE';
+                                default:
+                                    return 'VEINTI' + Unidades(unidad);
+                            }
+                        case 3:
+                            return DecenasY('TREINTA', unidad);
+                        case 4:
+                            return DecenasY('CUARENTA', unidad);
+                        case 5:
+                            return DecenasY('CINCUENTA', unidad);
+                        case 6:
+                            return DecenasY('SESENTA', unidad);
+                        case 7:
+                            return DecenasY('SETENTA', unidad);
+                        case 8:
+                            return DecenasY('OCHENTA', unidad);
+                        case 9:
+                            return DecenasY('NOVENTA', unidad);
+                        case 0:
+                            return Unidades(unidad);
+                    }
+                } //Unidades()
+    
+                function DecenasY(strSin, numUnidades) {
+                    if (numUnidades > 0)
+                        return strSin + ' Y ' + Unidades(numUnidades)
+    
+                    return strSin;
+                } //DecenasY()
+    
+                function Centenas(num) {
+                    let centenas = Math.floor(num / 100);
+                    let decenas = num - (centenas * 100);
+    
+                    switch (centenas) {
+                        case 1:
+                            if (decenas > 0)
+                                return 'CIENTO ' + Decenas(decenas);
+                            return 'CIEN';
+                        case 2:
+                            return 'DOSCIENTOS ' + Decenas(decenas);
+                        case 3:
+                            return 'TRESCIENTOS ' + Decenas(decenas);
+                        case 4:
+                            return 'CUATROCIENTOS ' + Decenas(decenas);
+                        case 5:
+                            return 'QUINIENTOS ' + Decenas(decenas);
+                        case 6:
+                            return 'SEISCIENTOS ' + Decenas(decenas);
+                        case 7:
+                            return 'SETECIENTOS ' + Decenas(decenas);
+                        case 8:
+                            return 'OCHOCIENTOS ' + Decenas(decenas);
+                        case 9:
+                            return 'NOVECIENTOS ' + Decenas(decenas);
+                    }
+    
+                    return Decenas(decenas);
+                } //Centenas()
+    
+                function Seccion(num, divisor, strSingular, strPlural) {
+                    let cientos = Math.floor(num / divisor)
+                    let resto = num - (cientos * divisor)
+    
+                    let letras = '';
+    
+                    if (cientos > 0)
+                        if (cientos > 1)
+                            letras = Centenas(cientos) + ' ' + strPlural;
+                        else
+                            letras = strSingular;
+    
+                    if (resto > 0)
+                        letras += '';
+    
+                    return letras;
+                } //Seccion()
+    
+                function Miles(num) {
+                    let divisor = 1000;
+                    let cientos = Math.floor(num / divisor)
+                    let resto = num - (cientos * divisor)
+    
+                    let strMiles = Seccion(num, divisor, 'UN MIL', 'MIL');
+                    let strCentenas = Centenas(resto);
+    
+                    if (strMiles == '')
+                        return strCentenas;
+    
+                    return strMiles + ' ' + strCentenas;
+                } //Miles()
+    
+                function Millones(num) {
+                    let divisor = 1000000;
+                    let cientos = Math.floor(num / divisor)
+                    let resto = num - (cientos * divisor)
+    
+                    let strMillones = Seccion(num, divisor, 'UN MILLON', 'MILLONES');
+                    let strMiles = Miles(resto);
+    
+                    if (strMillones == '')
+                        return strMiles;
+    
+                    return strMillones + ' ' + strMiles;
+                } //Millones()
+    
+                return function NumeroALetras(num, currency) {
+                    currency = currency || {};
+                    let data = {
+                        numero: num,
+                        enteros: Math.floor(num),
+                        centavos: (((Math.round(num * 100)) - (Math.floor(num) * 100))),
+                        letrasCentavos: '',
+                        letrasMonedaPlural: (currency.plural === 'DÓLARES') ? 'PESOS MEXICANOS' : currency.plural || 'PESOS MEXICANOS', //'PESOS', 'Dólares', 'Bolívares', 'etcs'
+                        letrasMonedaSingular: (currency.singular === 'DÓLAR') ? 'PESO MEXICANO' : currency.singular || 'PESO MEXICANO', //'PESO', 'Dólar', 'Bolivar', 'etc'
+                        letrasMonedaCentavoPlural: currency.centPlural || 'CENTAVOS',
+                        letrasMonedaCentavoSingular: currency.centSingular || 'CENTAVO'
+                    };
+    
+                    if (data.centavos > 0) {
+                        data.letrasCentavos = 'CON ' + (function () {
+                            if (data.centavos == 1)
+                                return Millones(data.centavos) + ' ' + data.letrasMonedaCentavoSingular;
+                            else
+                                return Millones(data.centavos) + ' ' + data.letrasMonedaCentavoPlural;
+                        })();
+                    };
+    
+                    if (data.enteros == 0)
+                        return 'CERO ' + data.letrasMonedaPlural + ' ' + data.letrasCentavos;
+                    if (data.enteros == 1)
+                        return Millones(data.enteros) + ' ' + data.letrasMonedaSingular + ' ' + data.letrasCentavos;
+                    else
+                        return Millones(data.enteros) + ' ' + data.letrasMonedaPlural + ' ' + data.letrasCentavos;
+                };
+    
+            })();
             const imageFile = file.load({ id: 4235 });
             const imageUrl = imageFile.url;
             const image_url_split = imageUrl.split("&")
             const image = "https://5845631-sb1.app.netsuite.com" + image_url_split[0] + "&amp;" + image_url_split[1] + "&amp;" + image_url_split[2];
-            const xml = `<?xml version="1.0"?>
+            let xml = `<?xml version="1.0"?>
             <!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
             <pdf>
                 <head>
@@ -90,12 +276,12 @@ define(['N/render', 'N/file', 'N/record'], function (render, file, record) {
                         }                       
                     </style>
                 </head>            
-                <body padding="0.5in 0.5in 0.5in 0.5in" size="A4">            
+                <body padding="0.5in 0.5in 0.5in 0.5in" size="A3">            
                     <table >
                         <tr>
                         <td border="none"  align="center">   
                                     <p><img src='${image}'
-                                        alt="Logo de la empresa" style="width:37.2%;height:30%;"/></p> 
+                                        alt="Logo de la empresa" style="width:50%;height:30%;"/></p> 
                         </td>
                             <td colspan="2" margin-top="20px" margin-left="10px" align="center" background-color="rgb(65, 133, 244)" color="white" border="none" font-size="12px">
                                 <p text-align="center">INFINIA TECNOLOGIA Y SERVICIOS</p>
@@ -109,38 +295,39 @@ define(['N/render', 'N/file', 'N/record'], function (render, file, record) {
                     </table>                  
                             <table>
                                 <tr>
-                                    <td background-color="rgb(183, 183, 185 )" margin-right="2px" border="none" width="21.6%" border-bottom="none" font-family="Calibri, sans-serif" vertical-align="top">
+                                    <td background-color="rgb(183, 183, 185 )" margin-right="2px" border="none" width="20%" border-bottom="none" font-family="Calibri, sans-serif" vertical-align="top">
                                         <p><strong>Forma de pago</strong></p>
                                         <p><strong>Método de pago</strong></p>
                                         <p><strong>Moneda</strong></p>
                                     </td>
-                                    <td colspan="2" margin-right="10px" border="none" width="25%" border-bottom="none" font-size="10px" align="top">
+                                    <td colspan="2" margin-right="10px" border="none" width="32%" border-bottom="none" font-size="10px" align="top">
                                         <p><strong>${wayToPay}</strong></p>
-                                        <p><strong>{paymentMethod}</strong></p>
-                                        <p><strong>{currency}</strong></p>
+                                        <p><strong>${paymentMethod}</strong></p>
+                                        <p><strong>${currency}</strong></p>
                                         
                                     </td>
-                                    <td colspan="2" background-color="rgb(211, 211, 211)" margin-right="2px" border="none" width="13.2%" font-family="Calibri, sans-serif" vertical-align="top">
+                                    <td colspan="3" background-color="rgb(211, 211, 211)" margin-right="2px" border="none" width="20%"  font-family="Calibri, sans-serif" vertical-align="top">
                                         <p><strong>Folio</strong></p>
-                                        <p><strong>Fecha</strong></p>                        
+                                        <p><strong>Fecha</strong></p>                                                        
                                     </td>
-                                    <td margin-right="10px" border="none" width="20%" border-bottom="none"  font-size="10px" vertical-align="top">
-                                        <p><strong>{invoice}</strong></p>
+                                    <td margin-right="10px" border="none" width="30%" border-bottom="none"  font-size="10px" align="center">
+                                        <p><strong>${invoice}</strong></p>
                                         <p><strong>${date}</strong></p>
+                                        
                                     </td>
                                 </tr>
                             </table>
                             <table>
                                 <tr>
-                                <td colspan="2" background-color="rgb(183, 183, 185 )" margin-right="2px" border="none" width="14%" border-bottom="none" font-family="Calibri, sans-serif" vertical-align="top">
+                                <td colspan="2" background-color="rgb(183, 183, 185 )" margin-right="2px" border="none" width="15%" border-bottom="none" font-family="Calibri, sans-serif" vertical-align="top">
                                     <p><strong>Vendedor</strong></p>
-                                    <p><strong>Orden de compra No.</strong></p>
+                                    <p><strong>Orden de venta No.</strong></p>
                                     <p><strong>Referencia</strong></p>
                                 </td>
                                 <td colspan="2" background-color="rgb(245, 239, 239)" border="none" width="75.6%" border-bottom="none"  font-size="10px" font-family="Calibri, sans-serif" vertical-align="top">
-                                    <p><strong>{vendorName}</strong></p>
-                                    <p><strong>{purchaseOrder}</strong></p>
-                                    <p><strong>{reference}</strong></p>
+                                    <p><strong>${seller}</strong></p>
+                                    <p><strong>${purchaseOrder}</strong></p>
+                                    <p><strong>${reference}</strong></p>
                                 </td>
                                 </tr>
                             </table>
@@ -159,61 +346,72 @@ define(['N/render', 'N/file', 'N/record'], function (render, file, record) {
                                         <p><strong>Domicilio:</strong></p>
                                     </td>
                                     <td width="80%" border-color="white">
-                                        <p><strong>{customer}</strong></p>
-                                        <p><strong>{rfc}</strong></p>
-                                        <p><strong>{home} </strong></p>
+                                        <p><strong>${customer}</strong></p>
+                                        <p><strong>${rfc}</strong></p>
+                                        <p><strong>${home} </strong></p>
                                     </td>
                                     </tr>
                             </table>                  
                         <table>
                                 <tr> 
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="1%"  font-size="9px" align-text="top"><strong>Cantidad</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="8%"  font-size="9px" align="center"><strong>Código</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="8%"  font-size="9px" align="center"><strong>Unidad</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="8%"  font-size="8px" align="center"><strong>Unidad SAT</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="45%" font-size="9px" align="center"><strong>Código SAT</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="45%" font-size="9px" align="center"><strong>Descripción</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="35%" font-size="9px" align="center"><strong>Valor unitario</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="15%" font-size="9px" align="center"><strong>Impuestos</strong></th>
-                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="10%" font-size="9px" align="center"><strong>Importe</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="1%"  font-size="9px" align-text="top" border-color="gray"><strong>Cantidad</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="30%" font-size="9px" align="center" border-color="gray"><strong>Código</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="20%" font-size="9px" align="center" border-color="gray"><strong>Unidad</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="20%" font-size="8px" align="center" border-color="gray"><strong>Unidad SAT</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="20%" font-size="9px" align="center" border-color="gray"><strong>Código SAT</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="40%" font-size="9px" align="center" border-color="gray"><strong>Descripción</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="30%" font-size="9px" align="center" border-color="gray"><strong>Valor unitario</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="30%" font-size="9px" align="center" border-color="gray"><strong>Impuestos</strong></th>
+                                    <th border="0.5px" background-color= "rgb(183, 183, 185)" width="30%" font-size="9px" align="center" border-color="gray"><strong>Importe</strong></th>
                                 </tr>
-                                <tr>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{cantidad}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{codigo}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{unit}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{unidad SAT}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{codeSat}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{description}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{Valor unitario}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{Impuestos}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center"><strong>{Importe}</strong></th>
-                                </tr>
-                        </table>  
-                    <div>
-                    <div>
-                        <table border="none" border-color="white">
-                                <tr border-color="white">
-                                    <td border-color="white">
-                                        <p><strong>Importe con letra:</strong></p>
-                                        <p class="valor"><strong>Valor en Letras:</strong></p>
-
-                                    </td>
-                                    <td width="15%" border-color="white">
-                                        <p><strong>Subtotal</strong></p>
-                                        <p><strong>I.V.A</strong></p> 
-                                        <p><strong>Total</strong></p>
-                                    </td>
-                                    <td width="10%" border-color="white">
-                                        <p><strong>$</strong></p>
-                                        <p><strong>$</strong></p>
-                                        <p><strong>$</strong></p>
-                                    </td>
-                                </tr>
-                        </table>                
-                    </div>
-                    </div>
-            </body>
-            </pdf>`
+                                ` 
+                                Array(lines).fill().forEach((_, i) => {                                   
+                                    const quantity = parseInt(renderInfinia.getSublistText({sublistId: "item",fieldId: "quantityremainingdisplay", line: i}));
+                                    const code = saleOrderData.getSublistValue({sublistId: "item",fieldId: "item_display", line: i}) || '-';
+                                    const units = renderInfinia.getSublistText({sublistId: "item",fieldId: "unitsdisplay", line: i});                               
+                                    const unitSat = renderInfinia.getSublistText({sublistId: "item",fieldId: "custrecord_mx_sat_uc_code",line: i}) || '-';
+                                    const codeSat = renderInfinia.getSublistText({sublistId: "item",fieldId: "custcol_mx_txn_line_sat_item_code",line: i}) || '-';
+                                    const description = renderInfinia.getSublistText({sublistId: "item",fieldId: "description",line: i}) || '-';
+                                    const unitValue = parseInt(saleOrderData.getSublistValue({sublistId: "item",fieldId: "rate",line: i}));
+                                    const amount =  parseInt(saleOrderData.getSublistText({sublistId: "item",fieldId: "amount",line: i}));                                  
+                                    // linea 385 el campo corresponde a valor unitario
+                                    xml += `<tr><th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${quantity}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${code}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${units}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${unitSat}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${codeSat}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${description}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${unitValue}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${taxes}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${amount}</strong></th>
+                                </tr>`
+                                xml +=`</table>  
+                                <div>
+                                <div>
+                                    <table border="none" border-color="white">
+                                            <tr border-color="white">
+                                                <td border-color="white">
+                                                    <p><strong>Importe con letra:</strong></p>
+                                                    <p class="valor">${numeroALetras(amount + taxes, currency)}</p>
+            
+                                                </td>
+                                                <td width="15%" border-color="white">
+                                                    <p><strong>Subtotal</strong></p>
+                                                    <p><strong>I.V.A</strong></p> 
+                                                    <p><strong>Total</strong></p>
+                                                </td>
+                                                <td width="10%" border-color="white">
+                                                    <p><strong>$${amount}</strong></p>
+                                                    <p><strong>$${taxes}</strong></p>
+                                                    <p><strong>$${amount + taxes}</strong></p>
+                                                </td>
+                                            </tr>
+                                    </table>                
+                                </div>
+                                </div>
+                        </body>
+                        </pdf>`
+                                });                                                
             return xml
         } catch (error) {
             log.error("Error rendering PDF", error.message)

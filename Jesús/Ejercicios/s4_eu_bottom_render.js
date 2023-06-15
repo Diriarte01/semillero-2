@@ -11,11 +11,11 @@
             log.debug("entra try")
              form.clientScriptFileId = 4379;
              if (type === 'view') {
-                 const internalId = newRecord.id
+                 const internalId = newRecord.getValue('createdfrom')
                  const bottum = form.addButton({
                      id: 'custpage_s4_button_render',
-                     label: 'Remision',
-                     functionName: "pdfRemision()"
+                     label: 'Remisión',
+                     functionName: "pdfRemision(" + internalId + ")",
                  })
              }
          } catch (e) {
