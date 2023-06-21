@@ -11,6 +11,7 @@ define(['N/render', 'N/file', 'N/record', 'N/format'], function (render, file, r
         } catch (error) {
             log.error("Error onRe", error.message);
         }
+       
     }
     function createPdf(context) {
         try {
@@ -25,14 +26,29 @@ define(['N/render', 'N/file', 'N/record', 'N/format'], function (render, file, r
             const currency = saleOrderData.getText('currency') || '-';  // moneda
             const invoice = renderInfinia.getText('custbody_mx_cfdi_folio'); // folio
             const date = renderInfinia.getText('trandate'); // fecha
-            const seller = saleOrderData.getValue('salesrep')|| '-'; // vendedor
             const purchaseOrder = saleOrderData.getValue('tranid') || '-'; // orden de compra no.
             const reference = saleOrderData.getValue('custbody1') || '-'; // referencia
             const customer = renderInfinia.getText('entity'); // cliente
             const rfc = saleOrderData.getValue('custbody_mx_customer_rfc') || '-'; // rfc
             const home = renderInfinia.getValue('shipaddress'); // domicilio
             const taxes = saleOrderData.getValue('taxtotal');
+            const importe = saleOrderData.getValue('total');
+            const sublistId = 'salesteam';
+            const line = 0;
+            const fieldId = 'employee';
+            const seller = saleOrderData.getSublistText({sublistId: sublistId, fieldId: fieldId, line:line}); // empleado
+            //const total1 = saleOrderData.getValue('total') || '-'; // total
             let lines = renderInfinia.getLineCount({sublistId: "item"});
+
+            const formatCurrency = (number) => {
+                number = Math.round(number * 100) / 100;
+                const part = number.toString().split(".");
+                let wholepart = part[0];
+                const decimal = part.length > 1 ? part[1] : "00";
+                wholepart = wholepart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                const formattedNumber = wholepart + "," + decimal;
+                return formattedNumber;
+            }
             const numeroALetras = (function () {
                 // Código para mostrar el numero del total en letras
                 function Unidades(num) {
@@ -363,28 +379,37 @@ define(['N/render', 'N/file', 'N/record', 'N/format'], function (render, file, r
                                     <th border="0.5px" background-color= "rgb(183, 183, 185)" width="30%" font-size="9px" align="center" border-color="gray"><strong>Valor unitario</strong></th>
                                     <th border="0.5px" background-color= "rgb(183, 183, 185)" width="30%" font-size="9px" align="center" border-color="gray"><strong>Impuestos</strong></th>
                                     <th border="0.5px" background-color= "rgb(183, 183, 185)" width="30%" font-size="9px" align="center" border-color="gray"><strong>Importe</strong></th>
-                                </tr>
-                                ` 
+                                </tr>                                
+                                `
+                                let amount = 0;
+                                let subTotal = 0;
+                                //let totalTaxes = 0;                               
                                 Array(lines).fill().forEach((_, i) => {                                   
                                     const quantity = parseInt(renderInfinia.getSublistText({sublistId: "item",fieldId: "quantityremainingdisplay", line: i}));
-                                    const code = saleOrderData.getSublistValue({sublistId: "item",fieldId: "item_display", line: i}) || '-';
-                                    const units = renderInfinia.getSublistText({sublistId: "item",fieldId: "unitsdisplay", line: i});                               
-                                    const unitSat = renderInfinia.getSublistText({sublistId: "item",fieldId: "custrecord_mx_sat_uc_code",line: i}) || '-';
-                                    const codeSat = renderInfinia.getSublistText({sublistId: "item",fieldId: "custcol_mx_txn_line_sat_item_code",line: i}) || '-';
-                                    const description = renderInfinia.getSublistText({sublistId: "item",fieldId: "description",line: i}) || '-';
-                                    const unitValue = parseInt(saleOrderData.getSublistValue({sublistId: "item",fieldId: "rate",line: i}));
-                                    const amount =  parseInt(saleOrderData.getSublistText({sublistId: "item",fieldId: "amount",line: i}));                                  
+                                    const code = renderInfinia.getSublistValue({sublistId: "item",fieldId: "itemname", line: i}) || '-';
+                                    const units = renderInfinia.getSublistText({sublistId: "item",fieldId: "unitsdisplay", line: i}) || 0;                               
+                                    const unitSat = renderInfinia.getSublistText({sublistId: "item",fieldId: "custcol3",line: i}) || '';
+                                    const codeSat = saleOrderData.getSublistText({sublistId: "item",fieldId: "custcol_mx_txn_line_sat_item_code",line: i}) || '-';
+                                    const description = saleOrderData.getSublistText({sublistId: "item",fieldId: "item_display",line: i}) || '-';
+                                    const unitValue = (saleOrderData.getSublistValue({sublistId: "item",fieldId: "rate",line: i}));
+                                    const taxArticle = saleOrderData.getSublistValue({sublistId: "item",fieldId: "tax1amt",line: i});
+                                    amount =  parseInt(saleOrderData.getSublistValue({sublistId: "item",fieldId: "amount",line: i})) || 0; 
+                                    subTotal += amount;
+                                    //totalTaxes += taxes;                                  
                                     // linea 385 el campo corresponde a valor unitario
-                                    xml += `<tr><th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${quantity}</strong></th>
+                                    xml += `<tr>`
+                                    xml += `<th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${quantity}</strong></th>
                                     <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${code}</strong></th>
                                     <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${units}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${unitSat}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${unitSat +'-'+ units}</strong></th>
                                     <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${codeSat}</strong></th>
                                     <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${description}</strong></th>
                                     <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${unitValue}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${taxes}</strong></th>
-                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${amount}</strong></th>
-                                </tr>`
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${taxArticle}</strong></th>
+                                    <th border="0.5px"  background-color= "rgb(255, 255, 255)" font-size="9px" align="center" border-color="gray"><strong>${(quantity * unitValue)}</strong></th>` 
+                                    xml+=` </tr>` 
+                                });                                 
+                                                       
                                 xml +=`</table>  
                                 <div>
                                 <div>
@@ -392,7 +417,7 @@ define(['N/render', 'N/file', 'N/record', 'N/format'], function (render, file, r
                                             <tr border-color="white">
                                                 <td border-color="white">
                                                     <p><strong>Importe con letra:</strong></p>
-                                                    <p class="valor">${numeroALetras(amount + taxes, currency)}</p>
+                                                    <p class="valor">${numeroALetras(importe, currency)}</p>
             
                                                 </td>
                                                 <td width="15%" border-color="white">
@@ -401,9 +426,9 @@ define(['N/render', 'N/file', 'N/record', 'N/format'], function (render, file, r
                                                     <p><strong>Total</strong></p>
                                                 </td>
                                                 <td width="10%" border-color="white">
-                                                    <p><strong>$${amount}</strong></p>
+                                                    <p><strong>$${subTotal}</strong></p>
                                                     <p><strong>$${taxes}</strong></p>
-                                                    <p><strong>$${amount + taxes}</strong></p>
+                                                    <p><strong>$${importe}</strong></p>
                                                 </td>
                                             </tr>
                                     </table>                
@@ -411,7 +436,7 @@ define(['N/render', 'N/file', 'N/record', 'N/format'], function (render, file, r
                                 </div>
                         </body>
                         </pdf>`
-                                });                                                
+                                                                  
             return xml
         } catch (error) {
             log.error("Error rendering PDF", error.message)
